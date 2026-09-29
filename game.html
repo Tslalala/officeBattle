@@ -1,0 +1,1176 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>职场神话 · 三版本</title>
+<style>
+:root{--bg:#0d1420;--line:#2c3b4f;--edge:#41566e;--text:#e9e4d6;--muted:#8fa0b3;--gold:#f2c879;--red:#e06060;--green:#9fd4bb;--blue:#8ab6d6;--purple:#b9a0d6;--teal:#5fc9b4;--ink:#080d15}
+*{box-sizing:border-box}body{margin:0;background:#070b12;color:var(--text);font-family:"Microsoft YaHei",system-ui,sans-serif;min-height:100vh}button{font:inherit;cursor:pointer}
+#game{width:100vw;height:100dvh;min-height:540px;background:var(--bg);position:relative;overflow:hidden;display:flex;flex-direction:column}
+.top{height:44px;background:#0b1220;border-bottom:2px solid #35465c;display:flex;align-items:center;gap:14px;padding:0 14px;font-size:13px;letter-spacing:.06em;color:var(--muted);flex:none}
+.top b{color:var(--gold)}.top .sp{flex:1}
+.dot{display:inline-block;width:8px;height:8px;border-radius:0;background:#5a6a7d;margin-right:5px;vertical-align:middle}.dot.on{background:#5fce8f;box-shadow:0 0 5px #5fce8f88}.dot.off{background:#e06060}
+.ic{width:15px;height:15px;flex:none;vertical-align:-2px}
+.horror-only{display:none}
+.mode-horror .horror-only{display:inline-flex;align-items:center;gap:5px}
+.mode-horror .t-money,.mode-horror #modeName{display:none}
+.mode-horror #llmTxt{display:none}
+.t-loc{color:var(--teal);font-weight:700;letter-spacing:.1em}
+.t-goal{color:var(--gold);font-size:12px}
+.t-san{display:inline-flex;align-items:center;gap:6px}
+.t-san .track{display:inline-block;width:52px;height:8px;border:1px solid var(--edge);background:var(--ink)}
+.t-san .fill{display:block;height:100%;background:var(--purple);transition:width .3s}
+.t-san b{color:var(--purple);min-width:22px;text-align:right}
+.pxbtn{background:#101b2b;border:1px solid var(--edge);color:var(--text);border-radius:0;padding:5px 10px;font-size:12px;box-shadow:2px 2px 0 #050910}
+.pxbtn:hover{border-color:var(--gold);color:var(--gold)}
+.main{flex:1;display:flex;min-height:0}
+.left{flex:1;display:flex;flex-direction:column;min-width:0}
+.scene{flex:1;position:relative;overflow:hidden;background:#0d1522 url('assets/pixel/office-day.png') center/cover no-repeat;border-bottom:2px solid #35465c;min-height:200px;image-rendering:pixelated}
+.scene.night{filter:brightness(.6) saturate(.85)}
+#game.dusk .scene{filter:brightness(.42) saturate(.75)}
+#game.dusk #dayInfo{color:var(--gold);font-weight:700}
+.locbar{position:absolute;top:10px;left:10px;display:flex;gap:6px;flex-wrap:wrap;z-index:6;max-width:75%}
+.loc{background:#101b2bd9;border:1px solid var(--edge);color:#c6d5e4;font-size:12px;padding:4px 10px;border-radius:0}
+.loc.cur{border-color:var(--gold);color:var(--gold)}
+#mapBtn{position:absolute;top:10px;left:10px;z-index:7;display:none;background:#0c1422dd}
+.mode-horror #mapBtn{display:inline-flex}
+.mode-horror .locbar{display:none}
+.loc-banner{position:absolute;top:46px;left:50%;transform:translateX(-50%);z-index:7;background:#0c1422f0;border:1px solid var(--teal);color:var(--teal);padding:6px 18px;font-size:15px;letter-spacing:.3em;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap}
+.loc-banner.show{opacity:1}
+.mark{position:absolute;width:15px;height:15px;z-index:5;background:var(--teal);transform:rotate(45deg);border:2px solid #0a1119;opacity:.45;box-shadow:0 0 8px #5fc9b488;animation:markpulse 1.8s ease-in-out infinite}
+.mark:hover,.mark:focus{opacity:1;animation:none}
+@keyframes markpulse{50%{opacity:.85}}
+.toasts{position:absolute;right:12px;top:12px;z-index:8;display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.toast{background:#0c1422ee;border:1px solid #4d637f;padding:5px 12px;border-radius:0;font-size:13px;animation:tup .2s}
+@keyframes tup{from{opacity:0;transform:translateX(16px)}}
+.fx-noise{position:absolute;inset:0;z-index:9;pointer-events:none;display:none;opacity:.16;background:repeating-linear-gradient(0deg,transparent 0 2px,#5fc9b41c 2px 3px,transparent 3px 5px),repeating-linear-gradient(90deg,transparent 0 3px,#00000042 3px 4px)}
+#game.fx-high .fx-noise{display:block;animation:noise .6s steps(2) infinite}
+@keyframes noise{50%{transform:translateY(2px);opacity:.22}}
+/* 场景站立人物（chibi 全身立绘，底对齐） */
+.npc{position:absolute;bottom:0;z-index:4;width:clamp(64px,11vw,120px);aspect-ratio:1/2;border:0;padding:0;background-color:transparent;background-size:400% 100%;background-repeat:no-repeat;image-rendering:pixelated;cursor:pointer;transition:transform .15s;filter:drop-shadow(0 5px 4px #0006)}
+.npc:hover{transform:translateY(-5px)}
+.npc:active{transform:translateY(-2px)}
+.npc::after{content:attr(data-name);position:absolute;left:50%;top:-4px;transform:translate(-50%,-100%);background:#0c1422ee;border:1px solid var(--edge);color:var(--text);font-size:11px;padding:2px 8px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s}
+.npc:hover::after{opacity:1}
+.stat{height:32px;background:#0e1725;border-top:1px solid var(--line);color:var(--gold);font-size:12px;display:flex;align-items:center;gap:14px;padding:0 14px;flex:none;overflow-x:auto;white-space:nowrap}
+.mode-horror .stat{display:none}
+.bars{flex:1;display:flex;gap:10px;align-items:center}
+.meter{display:flex;align-items:center;gap:5px;color:var(--muted)}.meter .track{width:64px;height:8px;background:var(--ink);border:1px solid var(--edge)}.meter .fill{height:100%;transition:width .3s}
+.mood{background:#5fce8f}.energy{background:#f2c879}.kpi{background:#8ab6d6}.favor{background:#f2b56b}.danger{background:#e06060}.san,.sanity{background:#b9a0d6}.weird{background:#c96a9a}.qi{background:#ff9d5c}
+/* 对白区 */
+.dialog{flex:none;height:240px;background:#101a2a;border-top:2px solid #41566e;padding:10px 14px 8px;display:flex;flex-direction:column;gap:7px}
+.mode-horror .dialog{background:linear-gradient(#0e1828,#0b1320);border-top-color:#3c5a54;height:252px}
+.d-main{display:flex;gap:12px;flex:1;min-height:0}
+.avatar{width:82px;height:auto;flex:none;border:2px solid var(--edge);background:#0a1119;position:relative;image-rendering:pixelated;overflow:hidden}
+.mode-horror .avatar{border-color:#3c5a54}
+.avatar .av{position:absolute;inset:2px;image-rendering:pixelated;background-repeat:no-repeat}
+.avatar .av.expr{background-size:300% 200%}
+.avatar .av.chibi{background-size:400% 100%}
+/* 头像比例修正：expr 为 3×2 方脸表、chibi 为 4 列 1:2 表，均按原始比例取格，避免拉伸/错位 */
+.avatar .av.expr{top:50%;left:2px;right:2px;bottom:auto;height:auto;aspect-ratio:1/1;transform:translateY(-50%)}
+.avatar .av.chibi{top:50%;left:2px;right:2px;bottom:auto;height:auto;aspect-ratio:1/2;transform:translateY(-50%)}
+.av-tile{position:absolute;inset:0;display:grid;place-items:center;font-size:26px;color:#4d5f74;font-weight:700}
+.d-body{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0}
+.d-head{display:flex;align-items:baseline;gap:10px;flex:none}
+.speaker{font-size:14px;color:var(--gold);font-weight:700;letter-spacing:.12em}
+.mode-horror .speaker{color:var(--teal)}
+.hint{margin-left:auto;color:#6d7f93;font-size:11px;text-align:right}
+.textwrap{flex:1;overflow-y:auto;font-size:15px;line-height:1.62;white-space:pre-line;padding-right:6px;min-height:0}
+.textwrap .text{color:#e5e0d2}
+.opts{display:flex;gap:9px;flex-wrap:wrap;margin-top:7px;flex:none}
+.choice{border:1px solid #6d7f93;background:#17263a;color:var(--text);border-radius:0;padding:7px 13px;font-size:13px;box-shadow:2px 2px 0 #060b12}
+.choice:hover{transform:translateY(-1px);border-color:var(--gold)}
+.choice.mini{font-size:12px;padding:4px 9px;box-shadow:none;background:#14202f}
+.esc-strip{display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex:none;border:1px solid #3c5a54;background:#0c1622;padding:5px 8px;margin-top:6px}
+.esc-strip .chip{display:inline-flex;align-items:center;gap:5px;border:1px solid #3c5a54;color:var(--teal);font-size:11.5px;padding:2px 7px;background:#0a121d}
+.esc-strip .chip .th{width:20px;height:20px;display:inline-block;background-repeat:no-repeat;image-rendering:pixelated}
+.esc-strip .st{margin-left:auto;color:var(--muted);font-size:11.5px}
+/* 快捷入口与输入（惊悚版） */
+.quickbar{display:none;gap:7px;flex:none;flex-wrap:wrap}
+.mode-horror .quickbar{display:flex}
+.qbtn{display:inline-flex;align-items:center;gap:6px;background:#101b2b;border:1px solid var(--edge);color:#c6d5e4;border-radius:0;padding:6px 11px;font-size:12.5px;box-shadow:2px 2px 0 #050910}
+.qbtn:hover{border-color:var(--teal);color:var(--teal)}
+.qbtn.warn{border-color:#6e3d3d;color:#e0a0a0}
+.qbtn.warn:hover{border-color:var(--red);color:var(--red)}
+.qbtn .ic{width:13px;height:13px}
+.chatrow{display:none;gap:8px;flex:none;align-items:center}
+.mode-horror .chatrow{display:flex}
+.chatrow.on{display:flex}
+.chat-ctx{flex:none;font-size:11.5px;color:var(--teal);border:1px solid #2c4a45;background:#0c1622;padding:6px 9px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chatrow input{flex:1;background:#0b1320;border:1px solid var(--edge);color:var(--text);border-radius:0;padding:8px 10px;font-size:13px;outline:none;min-width:0}
+.chatrow input:focus{border-color:var(--teal)}
+.chatrow .choice{padding:8px 14px}
+/* 右栏（认真/娱乐版） */
+.right{width:252px;flex:none;background:#0e1725;border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.mode-horror .right{display:none}
+.panel{padding:10px 12px 6px;font-size:12px}
+.actions{flex:1;overflow-y:auto;padding:4px 10px 12px;border-top:1px solid var(--line)}
+.actions h4{margin:9px 0 4px;font-size:11px;color:var(--muted);letter-spacing:.2em;font-weight:normal}
+.grp{margin:0 0 6px}
+.grp summary{list-style:none;cursor:pointer;background:#152335;border:1px solid var(--edge);border-radius:0;padding:7px 10px;font-size:13px;color:var(--text);display:flex;align-items:center;gap:7px}
+.grp summary:hover{border-color:var(--gold)}
+.grp[open] summary{border-color:var(--gold);color:var(--gold)}
+.grp .sub{display:flex;flex-direction:column;gap:4px;padding:6px 2px 2px}
+.sub .choice{text-align:left;box-shadow:none;background:#14202f}
+.act{width:100%;text-align:left;background:#152335;border:1px solid var(--edge);border-radius:0;padding:7px 10px;font-size:13px;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.act:hover{border-color:var(--gold)}
+.act:disabled{opacity:.45;cursor:not-allowed}
+.act small{color:var(--muted);flex:1;text-align:right;font-size:11px}
+.log{height:118px;flex:none;border-top:1px solid var(--line);overflow-y:auto;padding:8px 12px;font-size:11.5px;line-height:1.55;color:#8398ad}
+.log p{margin:0 0 3px}.log b{color:var(--gold);font-weight:normal}
+/* 弹窗 */
+.overlay{position:absolute;inset:0;z-index:30;background:#070b12e6;display:flex;align-items:center;justify-content:center;padding:24px}
+.hidden{display:none!important}
+.card{width:min(680px,100%);max-height:92%;overflow-y:auto;border:2px solid #7a6845;background:#101a2af7;padding:24px 28px;box-shadow:6px 6px 0 #04070d}
+.card h1{font-size:29px;margin:10px 0 8px;line-height:1.25;display:flex;align-items:center;gap:10px}
+.card .eyebrow{color:var(--gold);font-size:12px;letter-spacing:.25em}
+.card p{line-height:1.8;color:#cfd4d2;font-size:14px;margin:8px 0}
+.card .small{font-size:12px;color:#8fa0b3}
+.modes{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.mode{position:relative;display:flex;gap:14px;align-items:flex-start;text-align:left;border:1px solid var(--edge);background:#111c2c;border-radius:0;padding:13px 16px;color:var(--text);box-shadow:3px 3px 0 #060b12}
+.mode:hover{border-color:var(--gold)}
+.mode .em{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:1px solid var(--edge);background:#0a1119;flex:none}
+.mode .em .ic{width:19px;height:19px}
+.mode b{color:var(--gold);font-size:15px;display:block}
+.mode .mdesc{display:block;font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5}
+.mode.hcard{border-color:#5d4a7d;background:#0a0f18 url('assets/pixel/hallway-title.png') right center/cover no-repeat;image-rendering:pixelated;min-height:100px}
+.mode.hcard:hover{border-color:var(--purple)}
+.mode.hcard:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0a0f18f2 32%,#0a0f1899)}
+.mode.hcard>*{position:relative}
+.mode.hcard b{color:var(--purple);letter-spacing:.18em}
+.mode.hcard .tag{display:block;color:#d8cdf0;font-size:13px;margin-top:4px}
+.help{margin-top:6px;border:1px solid var(--line);background:#0c1422}
+.help summary{cursor:pointer;padding:7px 12px;font-size:12px;color:var(--muted);list-style:none}
+.help[open] summary{border-bottom:1px solid var(--line)}
+.help .help-body{padding:8px 12px 12px;font-size:12px;color:#8fa0b3;line-height:1.7}
+kbd{background:#14202f;border:1px solid var(--edge);border-radius:0;padding:1px 6px;font-size:11px}
+.primary{background:var(--gold);border:0;color:#1a2432;padding:10px 20px;font-weight:700;border-radius:0;margin-top:10px;box-shadow:3px 3px 0 #060b12}
+.primary:hover{background:#ffe1a0}
+/* 抽屉（地图/手册/证据） */
+.drawer-veil{position:absolute;inset:0;z-index:38;background:#05080ecc}
+.drawer{position:absolute;top:0;right:0;bottom:0;z-index:40;width:min(430px,94vw);background:#0d1725;border-left:2px solid #41566e;display:flex;flex-direction:column;box-shadow:-8px 0 24px #000a}
+.drawer header{flex:none;display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:2px solid var(--line)}
+.drawer header b{letter-spacing:.2em;color:var(--gold);font-size:14px}
+.drawer header .pxbtn{margin-left:auto}
+.drawer-body{flex:1;overflow-y:auto;padding:12px 14px 18px}
+.map-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.map-cell{text-align:left;background:#101b2b;border:1px solid var(--edge);color:#c6d5e4;padding:10px 12px;font-size:13px;border-radius:0}
+.map-cell:hover{border-color:var(--teal)}
+.map-cell .sub{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+.map-cell.cur{border-color:var(--gold);color:var(--gold)}
+.map-cell.cur .sub{color:var(--gold)}
+.map-cell.dim{opacity:.55}
+.hb-rule{border:1px solid #2c4a45;background:#0c1622;padding:9px 12px;margin-bottom:8px}
+.hb-rule .rt{display:flex;gap:8px;align-items:center;margin-bottom:5px;flex-wrap:wrap}
+.hb-rule .no{color:var(--teal);font-size:12px;letter-spacing:.15em;font-weight:700}
+.hb-rule .chip{font-size:11px;padding:1px 7px;border:1px solid var(--edge);color:var(--muted)}
+.hb-rule .chip.ok{border-color:var(--teal);color:var(--teal)}
+.hb-rule .chip.bad{border-color:var(--red);color:var(--red)}
+.hb-rule .rtext{font-size:13px;line-height:1.65;color:#d9e2e6}
+.hb-rule .rlink{margin-top:5px;font-size:11.5px;color:var(--muted)}
+.hb-rule .rlink button{background:none;border:0;color:var(--teal);padding:0;font-size:11.5px;text-decoration:underline;cursor:pointer}
+.hb-rule .memo{margin-top:5px;font-size:11.5px;color:#c98a8a;border-top:1px dashed #2c3b4f;padding-top:4px}
+.hb-foot{font-size:12px;color:var(--muted);border:1px solid #2c4a45;padding:8px 12px;margin-top:4px}
+.hb-foot b{color:#c96a9a}
+.ev-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.ev-card{border:1px solid var(--edge);background:#101b2b;padding:10px;min-height:124px}
+.ev-card.got{border-color:#3c5a54}
+.ev-card .th{width:56px;height:56px;margin:0 auto 7px;border:2px solid var(--edge);background:#0a1119 center/contain no-repeat;image-rendering:pixelated;display:grid;place-items:center;color:#41566e}
+.ev-card.got .th{border-color:#3c5a54}
+.ev-card h5{margin:0 0 4px;font-size:13px;color:var(--teal);text-align:center}
+.ev-card .ew{font-size:11px;color:var(--muted);text-align:center}
+.ev-card .ef{font-size:11.5px;color:#cfd8d4;line-height:1.5;margin-top:5px}
+.ev-card .th .ic{width:24px;height:24px}
+.ev-link{grid-column:1/-1;border:1px dashed #3c5a54;color:var(--muted);font-size:11.5px;padding:7px 10px}
+.ev-unknown .th{color:#2c3b4f;font-size:20px;font-weight:700}
+/* 战斗 */
+.battle{width:min(760px,100%)}
+.bwrap{display:flex;gap:16px;margin:14px 0}
+.fighter{flex:1;border:1px solid var(--edge);padding:12px;background:#0c1422}
+.fighter h3{margin:0 0 6px;font-size:15px;color:var(--gold)}
+.fighter .foe{text-align:right}
+.hp{height:12px;background:var(--ink);border:1px solid var(--edge);margin-top:6px}
+.hp .fill{height:100%;background:linear-gradient(90deg,#e06060,#f2c879);transition:width .35s}
+.mvs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.blog{background:#0b1320;border:1px solid var(--line);padding:10px 14px;font-size:13px;line-height:1.65;max-height:130px;overflow-y:auto;white-space:pre-line}
+.rulelist{margin:10px 0;padding-left:0;list-style:none}
+.rulelist li{background:#141020;border:1px solid #5d4a7d;border-left:3px solid var(--purple);padding:9px 13px;margin-bottom:7px;font-size:13.5px;line-height:1.6;color:#d8cdf0}
+@keyframes flick{0%,100%{opacity:1}50%{opacity:.25}}
+.flick{animation:flick .22s steps(1) 2}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+/* 移动端 */
+@media(max-width:760px){
+ #game{height:100dvh;min-height:540px;border:none}
+ .top{flex-wrap:wrap;height:auto;min-height:40px;padding:4px 10px;gap:8px;font-size:11px}
+ .t-goal{flex-basis:100%;order:9}
+ .main{flex-direction:column}
+ .scene{min-height:168px;flex:1 1 44%}
+ .right{display:none!important}
+ .dialog{height:auto;max-height:46%}
+ .d-main{gap:9px}
+ .avatar{width:58px}
+ .npc{width:20vw}
+ .textwrap{font-size:13.5px}
+ .quickbar{overflow-x:auto;flex-wrap:nowrap}
+ .qbtn{flex:none}
+ .chat-ctx{display:none}
+ .drawer{width:100vw}
+}
+/* ============ 浅色主题 · 羊皮纸（单色调） ============ */
+html.light body{background:#d9cdae;color:#3b3325}
+html.light #game{background:#efe6cf}
+html.light .top{background:#e9dfc4;border-bottom-color:#b5a67f;color:#6a5f49}
+html.light .top b{color:#8a6a2f}
+html.light .t-loc{color:#3e7a6a}
+html.light .t-goal{color:#8a6a2f}
+html.light .t-san .track{background:#d9cca6}
+html.light .t-san b,html.light .t-san .fill{color:#6a5a8a;background:#6a5a8a}
+html.light .pxbtn{background:#f6efdc;border-color:#9a8a64;color:#3b3325;box-shadow:2px 2px 0 #00000022}
+html.light .pxbtn:hover{border-color:#8a6a2f;color:#8a6a2f}
+html.light .scene{background-color:#d8cba8;border-bottom-color:#b5a67f;filter:sepia(.22) saturate(.85)}
+html.light .scene.night{filter:sepia(.22) saturate(.8) brightness(.78)}
+html.light #game.dusk .scene{filter:sepia(.2) saturate(.72) brightness(.6)}
+html.light .loc{background:#f4ecd9e6;border-color:#9a8a64;color:#54493a}
+html.light .loc.cur{border-color:#8a6a2f;color:#8a6a2f}
+html.light #mapBtn{background:#f4ecd9ee}
+html.light .loc-banner{background:#f4ecd9f2;border-color:#3e7a6a;color:#3e7a6a}
+html.light .mark{border-color:#efe6cf}
+html.light .toast{background:#f4ecd9f2;border-color:#8a7a58}
+html.light .fx-noise{background:repeating-linear-gradient(0deg,transparent 0 2px,#6a5a3a24 2px 3px,transparent 3px 5px),repeating-linear-gradient(90deg,transparent 0 3px,#0000002e 3px 4px)}
+html.light .npc::after{background:#f4ecd9f2;border-color:#9a8a64;color:#3b3325}
+html.light .stat{background:#e9dfc4;border-top-color:#b5a67f;color:#8a6a2f}
+html.light .meter{color:#7d7157}
+html.light .meter .track{background:#d9cca6;border-color:#9a8a64}
+html.light .mood{background:#4e7a52}
+html.light .energy{background:#a8842f}
+html.light .kpi{background:#4e6b85}
+html.light .favor{background:#a86f35}
+html.light .danger{background:#a54a3f}
+html.light .san,html.light .sanity{background:#6a5a8a}
+html.light .weird{background:#8a4a68}
+html.light .qi{background:#b26a2e}
+html.light .dialog{background:#ece1c4;border-top-color:#9a8a64}
+html.light .mode-horror .dialog{background:linear-gradient(#e9dcc0,#e2d4b2);border-top-color:#7d8a6a}
+html.light .avatar{border-color:#9a8a64;background:#e3d6b3}
+html.light .mode-horror .avatar{border-color:#7d8a6a}
+html.light .av-tile{color:#8a7a58}
+html.light .speaker{color:#8a6a2f}
+html.light .mode-horror .speaker{color:#3e7a6a}
+html.light .hint{color:#8a7f66}
+html.light .textwrap .text{color:#33302a}
+html.light .choice{border-color:#8a7a58;background:#f6efdc;color:#3b3325;box-shadow:2px 2px 0 #00000022}
+html.light .choice:hover{border-color:#8a6a2f}
+html.light .choice.mini{background:#eadfbd}
+html.light .esc-strip{border-color:#7d8a6a;background:#e9dfc4}
+html.light .esc-strip .chip{border-color:#7d8a6a;color:#3e7a6a;background:#e3d6b3}
+html.light .esc-strip .st{color:#7d7157}
+html.light .qbtn{background:#f6efdc;border-color:#9a8a64;color:#54493a;box-shadow:2px 2px 0 #00000022}
+html.light .qbtn:hover{border-color:#3e7a6a;color:#3e7a6a}
+html.light .qbtn.warn{border-color:#a54a3f;color:#a54a3f}
+html.light .qbtn.warn:hover{border-color:#7d2f27;color:#7d2f27}
+html.light .chat-ctx{color:#3e7a6a;border-color:#7d8a6a;background:#e9dfc4}
+html.light .chatrow input{background:#f6efdc;border-color:#9a8a64;color:#3b3325}
+html.light .chatrow input:focus{border-color:#3e7a6a}
+html.light .right{background:#e9dfc4;border-left-color:#b5a67f}
+html.light .actions h4{color:#7d7157}
+html.light .grp summary{background:#f6efdc;border-color:#9a8a64;color:#3b3325}
+html.light .grp summary:hover,html.light .grp[open] summary{border-color:#8a6a2f}
+html.light .grp[open] summary{color:#8a6a2f}
+html.light .sub .choice{background:#eadfbd}
+html.light .act{background:#f6efdc;border-color:#9a8a64;color:#3b3325}
+html.light .act:hover{border-color:#8a6a2f}
+html.light .act small{color:#7d7157}
+html.light .log{border-top-color:#b5a67f;color:#8a7f66}
+html.light .log b{color:#8a6a2f}
+html.light .overlay{background:#d9cdaecc}
+html.light .card{border-color:#9a8a64;background:#f6efdcf5;box-shadow:6px 6px 0 #00000026}
+html.light .card .eyebrow{color:#8a6a2f}
+html.light .card p{color:#54493a}
+html.light .card .small{color:#7d7157}
+html.light .mode{border-color:#9a8a64;background:#f4ecd8;box-shadow:3px 3px 0 #00000022}
+html.light .mode:hover{border-color:#8a6a2f}
+html.light .mode .em{background:#e3d6b3;border-color:#9a8a64}
+html.light .mode b{color:#8a6a2f}
+html.light .mode .mdesc{color:#7d7157}
+html.light .mode.hcard b{color:#b9a0d6}
+html.light .help{border-color:#b5a67f;background:#efe6cf}
+html.light .help summary,html.light .help .help-body{color:#7d7157}
+html.light .help[open] summary{border-bottom-color:#b5a67f}
+html.light kbd{background:#eadfbd;border-color:#9a8a64}
+html.light .drawer-veil{background:#d9cdaac4}
+html.light .drawer{background:#efe6cf;border-left-color:#9a8a64}
+html.light .drawer header{border-bottom-color:#b5a67f}
+html.light .drawer header b{color:#8a6a2f}
+html.light .map-cell{background:#f4ecd8;border-color:#9a8a64;color:#54493a}
+html.light .map-cell:hover{border-color:#3e7a6a}
+html.light .map-cell .sub{color:#7d7157}
+html.light .map-cell.cur,html.light .map-cell.cur .sub{border-color:#8a6a2f;color:#8a6a2f}
+html.light .hb-rule{border-color:#7d8a6a;background:#e9dfc4}
+html.light .hb-rule .no{color:#3e7a6a}
+html.light .hb-rule .chip{border-color:#9a8a64;color:#7d7157}
+html.light .hb-rule .chip.ok{border-color:#3e7a6a;color:#3e7a6a}
+html.light .hb-rule .chip.bad{border-color:#a54a3f;color:#a54a3f}
+html.light .hb-rule .rtext{color:#3b3325}
+html.light .hb-rule .rlink{color:#7d7157}
+html.light .hb-rule .rlink button{color:#3e7a6a}
+html.light .hb-rule .memo{color:#a55a4f;border-top-color:#b5a67f}
+html.light .hb-foot{border-color:#7d8a6a;color:#7d7157}
+html.light .hb-foot b{color:#8a4a68}
+html.light .ev-card{border-color:#9a8a64;background:#f4ecd8}
+html.light .ev-card.got{border-color:#7d8a6a}
+html.light .ev-card .th{background:#e3d6b3 center/contain no-repeat;border-color:#9a8a64;color:#9a8a64}
+html.light .ev-card.got .th{border-color:#7d8a6a}
+html.light .ev-card h5{color:#3e7a6a}
+html.light .ev-card .ew{color:#7d7157}
+html.light .ev-card .ef{color:#4a4436}
+html.light .ev-link{border-color:#7d8a6a;color:#7d7157}
+html.light .ev-unknown .th{color:#9a8a64}
+html.light .fighter{background:#efe6cf;border-color:#9a8a64}
+html.light .fighter h3{color:#8a6a2f}
+html.light .hp{background:#d9cca6;border-color:#9a8a64}
+html.light .blog{background:#efe6cf;border-color:#b5a67f}
+html.light .rulelist li{background:#ece2c8;border-color:#8a7aa0;border-left-color:#6a5a8a;color:#4a3f5c}
+html.light ::-webkit-scrollbar-thumb{background:#b5a67f}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#33465e;border-radius:0}
+</style>
+<script>try{if(localStorage.getItem("officeMythTheme")==="light")document.documentElement.classList.add("light")}catch(e){}</script>
+</head>
+<body>
+<main id="game" class="boot">
+  <header class="top">
+    <span><b>职场神话</b> · <span id="modeName">—</span></span>
+    <span class="t-loc horror-only" id="locName">—</span>
+    <span id="dayInfo">第1天 09:00</span>
+    <span class="t-goal horror-only" id="goal"></span>
+    <span class="t-san horror-only">理智<b id="sanTopV">100</b><span class="track"><span class="fill" id="sanTopF" style="width:100%"></span></span></span>
+    <span class="t-money">存款 <b id="money">¥5,000</b></span>
+    <span class="sp"></span>
+    <span id="llmStat"><span class="dot" id="llmDot"></span><span id="llmTxt">大模型检测中…</span></span>
+    <button class="pxbtn" id="themeBtn" onclick="Game.toggleTheme()" title="切换深浅色主题" aria-label="切换深浅色主题"></button>
+    <button class="pxbtn" onclick="Game.saveGame(1)" title="存档"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></button>
+  </header>
+  <section class="main">
+    <div class="left">
+      <div class="scene" id="scene">
+        <button id="mapBtn" class="pxbtn horror-only" onclick="HorUI.openMap()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3L3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/><line x1="9" y1="3" x2="9" y2="19"/><line x1="15" y1="5" x2="15" y2="21"/></svg>楼层地图</button>
+        <div class="locbar" id="locbar"></div>
+        <div class="loc-banner" id="locBanner"></div>
+        <div id="markLayer"></div>
+        <div class="toasts" id="toasts"></div>
+        <div class="fx-noise" id="fxNoise"></div>
+      </div>
+      <div class="stat"><div class="bars" id="bars"></div></div>
+      <section class="dialog">
+        <div class="d-main">
+          <div class="avatar" id="avatar"><div class="av-tile" id="avTile">·</div></div>
+          <div class="d-body">
+            <div class="d-head"><span class="speaker" id="speaker">旁白</span><span class="hint" id="hint"></span></div>
+            <div class="textwrap"><div class="text" id="text"></div></div>
+            <div class="esc-strip hidden" id="escStrip"></div>
+            <div class="opts" id="opts"></div>
+          </div>
+        </div>
+        <div class="quickbar" id="quickbar"></div>
+        <div class="chatrow hidden" id="chatrow"><span class="chat-ctx" id="chatCtx"></span><input id="chatIn" placeholder="你想说什么，或做什么？" maxlength="120"><button class="choice" id="chatSend">发送</button></div>
+      </section>
+    </div>
+    <aside class="right">
+      <div class="panel" id="selfPanel"></div>
+      <div class="actions" id="actions"></div>
+      <div class="log" id="log"></div>
+    </aside>
+  </section>
+  <div class="overlay hidden" id="overlay"><div class="card" id="modal"></div></div>
+  <div class="drawer-veil hidden" id="drawerVeil" onclick="HorUI.closeDrawer()"></div>
+  <aside class="drawer hidden" id="drawer">
+    <header><b id="drawerTitle">手册</b><button class="pxbtn" onclick="HorUI.closeDrawer()">关闭</button></header>
+    <div class="drawer-body" id="drawerBody"></div>
+  </aside>
+</main>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const ri=(a,b)=>Math.floor(rnd(a,b+1));
+const pick=a=>a[ri(0,a.length-1)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+/* 内联线性图标 */
+const ICONS={
+ phone:'<rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/>',
+ monitor:'<rect x="2" y="4" width="20" height="13" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>',
+ walk:'<circle cx="12" cy="4.5" r="2"/><line x1="12" y1="7" x2="12" y2="14"/><line x1="12" y1="14" x2="9" y2="21"/><line x1="12" y1="14" x2="15" y2="21"/><line x1="8.5" y1="10" x2="15.5" y2="10"/>',
+ wc:'<path d="M5 9h14l-1.4 5.6a5 5 0 0 1-4.9 3.9h-1.4a5 5 0 0 1-4.9-3.9L5 9z"/><path d="M7 9V4h6"/>',
+ briefcase:'<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+ users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+ crown:'<path d="M3 18l2-11 5 5 2-7 2 7 5-5 2 11H3z"/>',
+ sprout:'<path d="M12 21v-8"/><path d="M12 13c0-4-3-6.5-7.5-6.5 0 4.5 3 6.5 7.5 6.5z"/><path d="M12 13c0-4 3-6.5 7.5-6.5 0 4.5-3 6.5-7.5 6.5z"/>',
+ cookie:'<circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="14.5" cy="13.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none"/>',
+ zap:'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+ book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+ moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/>',
+ sun:'<circle cx="12" cy="12" r="4.5"/><line x1="12" y1="2" x2="12" y2="4.5"/><line x1="12" y1="19.5" x2="12" y2="22"/><line x1="2" y1="12" x2="4.5" y2="12"/><line x1="19.5" y1="12" x2="22" y2="12"/><line x1="4.9" y1="4.9" x2="6.7" y2="6.7"/><line x1="17.3" y1="17.3" x2="19.1" y2="19.1"/><line x1="4.9" y1="19.1" x2="6.7" y2="17.3"/><line x1="17.3" y1="6.7" x2="19.1" y2="4.9"/>',
+ logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+ search:'<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+ folder:'<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>',
+ trend:'<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
+ spark:'<path d="M12 3l1.9 5.8L20 10.6l-6.1 1.2L12 17.6l-1.9-5.8L4 10.6l6.1-1.8L12 3z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8L19 17z"/>',
+ flame:'<path d="M12 2c2 4 6 6.5 6 11a6 6 0 0 1-12 0c0-2.6 1.2-4.6 2.6-6.4.5 1.8 1.4 2.9 2.9 3.9-.8-2.8-.4-6 .5-8.5z"/>',
+ map:'<path d="M9 3L3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/><line x1="9" y1="3" x2="9" y2="19"/><line x1="15" y1="5" x2="15" y2="21"/>',
+ backpack:'<path d="M6 21V9a6 6 0 0 1 12 0v12"/><path d="M4 13h16v8H4z"/><path d="M9 7h6"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/>'};
+const ic=n=>'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[n]||"")+"</svg>";
+
+/* ============ 大模型接入 ============ */
+const UPSTREAM="http://10.133.72.161:20133/v1";
+const API_BASE=(location.protocol==="http:"||location.protocol==="https:")?location.origin+"/v1":UPSTREAM;
+const MODEL="Qwen3.8-27B-BF16", API_KEY="callmemaybe";
+let llmOK=null;
+async function llm(messages,{json=false,maxTokens=700,temp=0.9,timeout=45000}={}){
+  const body={model:MODEL,messages,temperature:temp,max_tokens:maxTokens,chat_template_kwargs:{enable_thinking:false}};
+  const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),timeout);
+  try{
+    const r=await fetch(API_BASE+"/chat/completions",{method:"POST",signal:ctl.signal,
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+API_KEY},body:JSON.stringify(body)});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const d=await r.json();const c=d.choices[0].message.content;setLLM(true);return c;
+  }finally{clearTimeout(t)}
+}
+function setLLM(ok){llmOK=ok;const d=$("llmDot");if(d)d.className="dot "+(ok?"on":"off");const t=$("llmTxt");if(t)t.textContent=ok?"已连接":"离线";
+ const tl=$("titleLlm");if(tl)tl.textContent=ok?"已连接":"离线（内置剧本，剧情照常）";}
+function parseJSON(txt){
+  const m=txt.match(/\{[\s\S]*\}/);if(!m)throw new Error("no json");
+  return JSON.parse(m[0]);
+}
+async function pingLLM(){
+  try{await llm([{role:"user",content:"回复：OK"}],{maxTokens:8,temp:0});}catch(e){setLLM(false);}
+}
+function parseEvent(txt){
+  const j=parseJSON(txt);
+  const opts=(j.options||[]).slice(0,4).map(o=>{
+    const fx={mood:n(o.mood),energy:n(o.energy),kpi:n(o.kpi),favor:n(o.favor),danger:n(o.danger),money:n(o.money||0,2000),san:n(o.sanity||o.san||0),weird:n(o.weird||0),qi:n(o.qi||0)};
+    for(const k in o){if(/^rel_/.test(k)&&S&&S.rel[k.slice(4)]!=null)fx[k]=n(o[k])}
+    return {label:String(o.label||"继续").slice(0,20),result:String(o.result||"").slice(0,120),fx}});
+  if(!opts.length)throw new Error("empty");
+  return {title:String(j.title||"突发事件"),text:String(j.text||"").slice(0,400),options:opts};
+}
+const n=(v,max=30)=>{v=parseInt(v);return isNaN(v)?0:clamp(v,-max,max)};
+
+/* ============ 世界观数据 ============ */
+const MODES={
+ serious:{name:"认真版 · 浮沉记",icon:"trend",desc:"升职加薪、斗倒对手的写实职场。勾心斗角、欺软怕硬、对上斗智斗勇，10天后季度考核定结局。",sys:"冷静写实的中国互联网公司职场剧风格，讽刺而不夸张，聚焦绩效、汇报、办公室政治。"},
+ fun:{name:"娱乐版 · 奇幻办公室",icon:"spark",desc:"光怪陆离的奇幻职场：领导会召唤宝可梦对战，打印机成精，团建是副本。热血搞笑，10天挑战大老板。",sys:"热血搞笑的奇幻职场风格：领导拥有宝可梦、办公室物品会成精、日常充满超展开，语气像热血动漫旁白。"},
+ horror:{name:"惊悚版 · 请于下班前离开",icon:"flame",desc:"职场规则怪谈。遵守办公室守则，留意第四张工位与陈序，别信下班铃之后的广播。理智耗尽即成谜。",sys:"克制阴冷的规则怪谈风格：讲究'守则'、异象、暗示，不直接吓人但处处不对劲。参考：神秘前员工陈序、第四张空工位、18:00的下班广播。"},
+};
+const SLOTS=["09:00","10:30","12:00 午休","13:30","15:00","16:30"];
+const LOCS={
+ desk:{name:"工位",bg:"assets/pixel/office-day.png",night:"assets/pixel/office-night.png"},
+ pantry:{name:"茶水间",bg:"assets/pixel/break-room.png"},
+ meeting:{name:"会议室",bg:"assets/pixel/meeting-room.png",horrorBg:"assets/pixel/meeting-room-night.png"},
+ boss:{name:"主管办公室",bg:"assets/pixel/expansion-01/manager-office.png"},
+ roof:{name:"天台",bg:"assets/pixel/expansion-01/rooftop.png",horrorBg:"assets/pixel/expansion-01/rooftop-night.png"},
+ wc:{name:"卫生间",bg:"assets/pixel/expansion-01/stairwell.png"},
+ lobby:{name:"楼下大堂",bg:"assets/pixel/expansion-01/lobby.png",horrorBg:"assets/pixel/expansion-01/lobby-night.png"},
+ security:{name:"监控室",bg:"assets/pixel/expansion-02/security-room.png",horror:true},
+ archive:{name:"档案室",bg:"assets/pixel/records-room.png",horror:true},
+ server:{name:"机房",bg:"assets/pixel/expansion-02/server-room.png",horror:true},
+ stairs:{name:"消防楼梯",bg:"assets/pixel/expansion-01/stairwell.png",horror:true},
+ elevator:{name:"电梯间",bg:"assets/pixel/expansion-01/elevator.png",horror:true},
+};
+const NPCS={
+ zhou:{name:"周主管",tag:"你的上司",img:"c",idx:1,locs:["boss"],style:"官腔笑面虎，欺软怕硬，酷爱PPT和汇报，画饼大师。对强者退让，对弱者施压。"},
+ lin:{name:"林棠",tag:"资深同事",img:"c",idx:0,locs:["desk","meeting","roof"],style:"冷静通透，业务强，看破不说破，关键时刻会提点你，也可能是最强对手。"},
+ wu:{name:"小吴",tag:"实习生",img:"c",idx:2,locs:["desk","pantry"],style:"怯生生的应届生，干活麻利，容易被使唤，心里憋着一股劲。"},
+ he:{name:"何姐",tag:"HR",img:"n",idx:2,locs:["pantry","lobby"],style:"笑里藏刀，消息灵通，掌握裁员名单和八卦，话里总有话。"},
+ wei:{name:"阿伟",tag:"IT运维",img:"n",idx:1,locs:["desk","pantry","wc"],style:"赛博道士，嘴里全是'重启试试'，能帮你删监控记录（收费）。"},
+ hong:{name:"前台小虹",tag:"门面担当",img:"n",idx:0,locs:["lobby"],style:"元气满满，全公司情报集散地，快递和八卦一样多。"},
+ zhao:{name:"老赵",tag:"夜班保安",img:"n",idx:3,locs:["lobby"],style:"沉默寡言，见多识广，总在深夜出现在不该出现的地方。"},
+ chen:{name:"陈序",tag:"？？？",img:"c",idx:3,locs:["desk","wc","roof","pantry"],style:"透明人，说话轻，似有似无，说的话总在应验。"},
+};
+const FALLBACK={
+ serious:[
+  {title:"临时背锅会",text:"周主管突然拉你进会议室：'项目延期总得有人负责'，目光扫过在场每个人。",options:[
+   {label:"主动揽责",result:"你把责任接了下来。主管满意点头，同事们的目光复杂。",fx:{favor:8,kpi:-4,mood:-8}},
+   {label:"用数据自证",result:"你甩出排期记录，会议室安静了三秒，锅落在了流程上。",fx:{kpi:4,favor:-4,mood:4}},
+   {label:"沉默装死",result:"锅在几轮推诿后落到小吴头上。你松了口气，又有点不是滋味。",fx:{mood:-4}}]},
+  {title:"晋升名额只有一个",text:"周主管把你叫进办公室：'你觉得，你和林棠谁更合适？'",options:[
+   {label:"举荐林棠",result:"你如实推荐了林棠。主管笑着记下了什么，你看不懂。",fx:{favor:4}},
+   {label:"毛遂自荐",result:"主管说'我看到了你的野心'，然后什么都没承诺。",fx:{favor:4,kpi:2}},
+   {label:"打太极",result:"你说'团队大于个人'。谈话五分钟就结束了。",fx:{favor:-3}}]},
+  {title:"周五团建",text:"周六团建'自愿参加'。报名表上主管的名字已端正签在最前面。",options:[
+   {label:"参加",result:"陪笑一整天，换来主管一句'上道'。",fx:{favor:8,energy:-15,mood:-6}},
+   {label:"不参加",result:"周一合影挂在墙上，上面没有你。",fx:{mood:10,favor:-8}}]},
+  {title:"跨部门抢功",text:"隔壁组在汇报里'深度参与'了你的方案，一字未改。",options:[
+   {label:"邮件抄送全员对线",result:"你贴出文档修订记录。对方组长脸绿了，主管打圆场。",fx:{kpi:5,favor:-3,danger:8}},
+   {label:"私下找主管汇报",result:"主管说'我心中有一杆秤'。秤在哪没人知道。",fx:{favor:5}},
+   {label:"算了",result:"你安慰自己来日方长，心里憋屈了一下午。",fx:{mood:-8}}]}],
+ fun:[
+  {title:"打印机成精",text:"三楼打印机幻化人形，自称'打印大妖·卡纸君'，扬言用七年陈年废纸淹没办公区。",options:[
+   {label:"递纸供养",result:"它吸饱A4纸，满意地打了一张'外出报备单'消失了。",fx:{kpi:3,mood:5}},
+   {label:"召唤IT阿伟",result:"阿伟一巴掌拍上去：'重启解决90%的妖。'卡纸君含泪现出原形。",fx:{mood:6}},
+   {label:"正面对轰",result:"一句'你也就卡过三次纸'暴击其自尊，卡纸君碎成漫天废纸。",fx:{qi:8,mood:8}}]},
+  {title:"加班之神祭坛",text:"会议室白板前浮起荧光召唤阵：'献出今晚，即可获得能量。'",options:[
+   {label:"献祭加班一晚",result:"凌晨三点金光劈进你的工牌，次日精神焕发，黑眼圈是紫色的。",fx:{kpi:8,energy:-25,qi:10}},
+   {label:"踢翻祭坛",result:"砸出一只哇哇大哭的加班精灵，它丢下一张'准点下班券'跑了。",fx:{mood:10,favor:-4}},
+   {label:"拍照发朋友圈",result:"全公司只有你看得见它。评论区：'什么图？P的吧？'",fx:{mood:4,danger:6}}]},
+  {title:"领导宝可梦现身",text:"周主管的气场实体化了！'PPT暴龙'在他背后咆哮登场，投影仪自动亮起！",options:[
+   {label:"进入对战！",result:"",fx:{},battle:"zhou"},
+   {label:"假装有会开溜",result:"你一个滑步溜出会议室，暴龙咆哮着蒸发成PPT残影。",fx:{favor:-2}},
+   {label:"递上零食求饶",result:"暴龙嗅了嗅辣条竟然坐下了。主管摸摸它的头：'算你识相。'",fx:{snacks:-1,favor:6}}]},
+  {title:"摩尔庄园许愿树",text:"公司电脑的庄园里长出一棵结着工资条的许愿树，留言板写着：'摘取者需承担后果。'",options:[
+   {label:"摘下工资条",result:"次月工资多500元，附言：快乐税。税务精灵随后找上了你。",fx:{money:500,mood:8,danger:8}},
+   {label:"坚持浇水",result:"树结出'期权果实'，一口咬下去是纸的味道。",fx:{mood:4,kpi:2}},
+   {label:"截图举报",result:"管理员回复：内部测试功能勿传谣。你的摩尔被罚站三天。",fx:{mood:-4}}]}],
+ horror:[
+  {title:"第四份周报",text:"共享盘里署名'陈序'的周报每周自动更新，最新一行：'他看到这份文件时，请不要回头。'",options:[
+   {label:"不回头",result:"你盯着屏幕读完。身后传来抽屉轻轻合上的声音。",fx:{san:-4,weird:4}},
+   {label:"回头",result:"工位区空无一人。但你的椅子，比刚才低了一格。",fx:{san:-10,weird:8}},
+   {label:"打印出来",result:"纸上'陈序'二字正变成你的名字。你掐断了电源。",fx:{san:-8,weird:12}}]},
+  {title:"下班铃之后",text:"18:00广播响起'请于下班前离开'。同时电脑弹出审批：主管邀你加班，限一分钟确认。",options:[
+   {label:"秒点拒绝",result:"审批瞬间变成'已作废'。办公室的灯闪了一下，像叹气。",fx:{san:6,favor:-6}},
+   {label:"接受加班",result:"办公室安静得能听见第四张工位上，有键盘在打字。",fx:{kpi:6,san:-12,weird:10}},
+   {label:"装作没看见",result:"弹窗自己关了。你离开时，整层楼的灯在你身后一盏盏熄灭。",fx:{san:-4}}]},
+  {title:"茶水间的第七个杯子",text:"沥水架上多出一只写着'陈序'的马克杯，咖啡还在冒热气。守则第4条：不要动不属于自己的杯子。",options:[
+   {label:"不碰，绕开它",result:"你恭敬绕开。热气'呼'地散了，像被吹灭的蜡烛。",fx:{san:4,weird:2}},
+   {label:"把咖啡倒掉",result:"咖啡入水槽的瞬间，所有水龙头同时打开又同时关上。",fx:{san:-8,weird:10}},
+   {label:"用它喝水",result:"水是甜的。今晚你会梦见一个陌生同事，他说谢谢。",fx:{san:-14,weird:16}}]},
+  {title:"工牌消磁",text:"门禁认不出你的工牌。保安老赵隔着玻璃指了指守则第7条：工牌失灵时请走楼梯，不要进电梯。",options:[
+   {label:"走楼梯",result:"声控灯一路为你亮着。你平安回去，只是楼多了一级台阶。",fx:{san:-2,energy:-5}},
+   {label:"进电梯",result:"电梯中途停了一层，门外是这条走廊的倒影——所有人背对着你。",fx:{san:-12,weird:12}},
+   {label:"找老赵问清楚",result:"老赵推来一张凳子：'坐。2019年，有个孩子没走楼梯。'",fx:{san:6}}]}]};
+const CHAT_FALLBACK={
+ zhou:["（推了推眼镜）这个事情，你要有大局观。","我很看好你，年轻人要沉淀。先把这个PPT今晚出一下。","（微笑）你最近的状态，我都看在眼里。"],
+ lin:["别急着站队，先把自己的活干漂亮。","（压低声音）主管今天的会议纪要，你最好看看第七条。","我以前也这样想。后来就不想了。"],
+ wu:["哥/姐，这个表格我马上改好！","（小声）主管是不是不太喜欢我啊……","我实习期还有两周就结束了……"],
+ he:["（笑）最近绩效考核，大家都要注意身体呀。","我什么都没说，但你最近好像常在茶水间？","名单这种东西，每周都会变的。"],
+ wei:["重启了吗？重启了。那就再重启。","（凑近）监控备份我可以帮你'优化'，一顿麻辣烫。","机房夜里有点冷，你别一个人去。"],
+ hong:["今天快递好多呀！有个你的，寄件人写的是——陈序？","（小声）听到主管在电梯里打电话说'名单'……","摸鱼要低调，前台看得最清楚哦。"],
+ zhao:["……早点回去。","（指了指墙上的守则）第7条，多看一眼。","夜里的电梯，别进。"],
+ chen:["（声音很轻）你又来了。……很高兴，还有人看得见我。","别信六点以后的广播。","替我记住这个名字。……其实你已经忘了，对吧？"]};
+const DEFAULT_RULES=[
+ "守则1：18:00的广播响起后，请立即整理东西离开，无论广播说了什么。",
+ "守则2：茶水间最多只有六个杯子。如果看到第七个，不要碰它。",
+ "守则3：第四张工位没有人。任何时候都不要在那台电脑上登录你的账号。",
+ "守则4：如果同事说'我昨天没见过你'，请微笑并同意他的说法。",
+ "守则5：监控室的值班表上只有保安老赵一个名字。如果看到别的名字，那不是名字。",
+ "守则6：加班可以，但凌晨2:00-3:00之间，不要照镜子。",
+ "守则7：工牌失灵时请走楼梯，不要进电梯。"];
+
+/* ============ 状态 ============ */
+let S=null,LLM_BUSY=false,evToken=0,ppToken=0,summaryToken=0;
+function newState(mode){
+ return {mode,day:1,slot:0,loc:"desk",money:5000,salary:9000,snacks:0,intel:0,wcCount:0,snackToday:false,
+  st:{mood:60,energy:85,kpi:15,favor:50,danger:0,san:100,weird:0,qi:30},
+  rel:{zhou:50,lin:50,wu:55,he:50,wei:50,hong:50,zhao:50,chen:0},
+  allies:[],rules:[],chat:{},hist:[],dayLog:[],flags:{},ended:false};
+}
+const modeName=()=>MODES[S.mode].name;
+const isHorror=()=>S&&S.mode==="horror",isFun=()=>S&&S.mode==="fun";
+
+/* ============ 惊悚版 UI 层（纯表现；判定全在 horror.js） ============ */
+const HorUI={
+ chatTarget:null,_tmr:null,_lbT:null,_curNid:null,_curExpr:0,
+ PORTRAITS:{zhou:"assets/pixel/characters-20/17-he-sales.png",lin:"assets/pixel/characters-20/18-jiang-programmer.png",
+  wu:"assets/pixel/characters-20/06-tang-intern.png",he:"assets/pixel/characters-20/04-song-hr.png",
+  wei:"assets/pixel/characters-20/03-liang-it.png",hong:"assets/pixel/characters-20/02-xu-reception.png",
+  zhao:"assets/pixel/characters-20/01-wu-guard.png",chen:"assets/pixel/characters-20/20-bai-former.png"},
+ EV:{
+  note:{sheet:"assets/pixel/expansion-02/investigation-items.png",pos:"33.33% 66.66%",name:"陈序的便签",where:"工位 · 第四张抽屉",hint:"似乎在工位附近",fact:"便签背面有一串旧员工编号"},
+  file:{sheet:"assets/pixel/expansion-02/investigation-items.png",pos:"0% 100%",name:"2019 年人事档案",where:"档案室 · 无编号档案袋",hint:"与人事记录有关",fact:"陈序 2019 年被标注'仍在岗'，每年出勤天数都是零"},
+  footage:{sheet:"assets/pixel/expansion-02/investigation-items.png",pos:"0% 33.33%",name:"监控录像片段",where:"监控室 · 旧录像",hint:"与监控有关",fact:"录像角落里，陈序把一张卡塞进了消防楼梯的门缝"},
+  backup:{sheet:"assets/pixel/expansion-02/investigation-items.png",pos:"66.66% 66.66%",name:"门禁备份",where:"机房 · 仍在运行的旧服务器",hint:"与机房有关",fact:"18:00 后电梯把人送回第十层；消防楼梯才连着真正的大堂"},
+  route:{icon:"map",name:"楼梯路线图",where:"消防楼梯 · 折起的楼层图",hint:"与楼梯有关",fact:"下两层 → 穿过无编号的门 → 不要回应第二次广播"}},
+ ORDER:["note","file","footage","backup","route"],
+ RULE_CLUE:{1:"route",3:"note",4:"file",5:"footage",7:"route"},
+ MARK:{desk:["68%","38%"],archive:["20%","40%"],security:["72%","34%"],server:["26%","38%"],stairs:["64%","36%"]},
+ LOC_CLUE:{desk:"note",archive:"file",security:"footage",server:"backup",stairs:"route"},
+ reduced(){return window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches},
+ ensureUI(){if(!S.horrorui)S.horrorui={visited:["desk"]};if(!Array.isArray(S.horrorui.visited))S.horrorui.visited=[];},
+ goalText(){
+  const cn=(S.horror&&S.horror.clues)||[];
+  if(S.ended)return "—";
+  if(cn.length<5)return "查明陈序的下落 · 线索 "+cn.length+"/5";
+  if(S.day<3)return "证据已齐 · 通道在第 3 天铃声后开启";
+  if(S.slot<6)return "18:00 铃响后，从大堂离开";
+  return "走消防楼梯，不要回头";},
+ renderQuick(){
+  const q=$("quickbar");q.innerHTML="";
+  const items=[["调查","search",()=>Horror.investigate()],["等待","clock",()=>Horror.event()],
+   ["手册","book",()=>HorUI.openHandbook()],["证据","backpack",()=>HorUI.openEvidence()],
+   ["离开","logout",()=>Horror.attemptEscape(),true]];
+  items.forEach(([l,icn,fn,warn])=>{const b=document.createElement("button");b.className="qbtn"+(warn?" warn":"");b.innerHTML=ic(icn)+"<span>"+l+"</span>";b.onclick=fn;q.append(b)});},
+ speakerNpc(sp){return Object.keys(NPCS).find(k=>sp===NPCS[k].name||sp.startsWith(NPCS[k].name+" ·")||sp.startsWith(NPCS[k].name+"（"))||null;},
+ exprFor(nid){
+  if(S.st.weird>=70&&Math.random()<0.3)return 5;
+  if(nid==="chen")return S.st.weird>=45?1:0;
+  if((S.rel[nid]||0)>=60&&["lin","wu","hong","he"].includes(nid))return 1;
+  return 0;},
+ setAvatar(sp){
+  const av=$("avatar");av.innerHTML="";
+  this._curNid=null;
+  const nid=this.speakerNpc(sp||"");
+  if(!nid){const t=document.createElement("div");t.className="av-tile";t.textContent=(sp||"·").replace(/^【[^】]*】/,"").charAt(0)||"·";av.append(t);return}
+  this._curNid=nid;
+  const n=NPCS[nid];const d=document.createElement("div");d.className="av";
+  if(isHorror()&&this.PORTRAITS[nid]){
+   d.classList.add("expr");d.style.backgroundImage="url('"+this.PORTRAITS[nid]+"')";
+   const e=this.exprFor(nid);this._curExpr=e;
+   d.style.backgroundPosition=((e%3)*50)+"% "+(Math.floor(e/3)*100)+"%";
+  }else{
+   d.classList.add("chibi");
+   d.style.backgroundImage="url('"+(n.img==="c"?"assets/pixel/characters-chibi.png":"assets/pixel/expansion-01/npc-chibi.png")+"')";
+   d.style.backgroundPositionX=(n.idx*33.333)+"%";}
+  av.append(d);},
+ onSay(sp){
+  if(!S)return;
+  const horror=isHorror();
+  if(horror){
+   $("chatrow").classList.remove("hidden");
+   $("chatCtx").textContent=this.chatTarget?("对"+NPCS[this.chatTarget].name+"说话"):("在"+LOCS[S.loc].name+"行动");
+  }else if(!this.chatTarget){
+   $("chatrow").classList.add("hidden");$("chatrow").classList.remove("on");
+  }
+  this.setAvatar(sp||"");
+  const s=sp||"";
+  const escSp=horror&&(s.startsWith("最后一道门")||s.startsWith("大堂出口")||s.startsWith("消防楼梯"));
+  $("escStrip").classList.toggle("hidden",!escSp);
+  if(escSp)this.fillEscStrip();
+  this.ambientTick();},
+ fillEscStrip(){
+  const box=$("escStrip");box.innerHTML="";
+  const clues=(S.horror&&S.horror.clues)||[];
+  this.ORDER.forEach(k=>{if(!clues.includes(k))return;
+   const e=this.EV[k];const c=document.createElement("span");c.className="chip";
+   const th=document.createElement("span");th.className="th";
+   if(e.sheet){th.style.backgroundImage="url('"+e.sheet+"')";th.style.backgroundSize="300% 400%";th.style.backgroundPosition=e.pos;}
+   else th.innerHTML=ic(e.icon);
+   c.append(th,document.createTextNode(e.name));box.append(c);});
+  const st=document.createElement("span");st.className="st";
+  st.textContent="门禁备份："+(clues.includes("backup")?"已恢复":"未恢复")+" · 路线："+(clues.includes("route")?"已确认":"未知");
+  box.append(st);},
+ showLocBanner(name){
+  const b=$("locBanner");b.textContent=name;b.classList.add("show");
+  clearTimeout(this._lbT);this._lbT=setTimeout(()=>b.classList.remove("show"),1400);},
+ markers(){
+  const layer=$("markLayer");layer.innerHTML="";
+  if(!isHorror()||S.ended)return;
+  const cl=this.LOC_CLUE[S.loc];
+  if(!cl||(S.horror&&S.horror.clues.includes(cl)))return;
+  const pos=this.MARK[S.loc]||["70%","38%"];
+  const d=document.createElement("button");d.className="mark";d.title="有什么可以调查";
+  d.style.left=pos[0];d.style.top=pos[1];d.onclick=()=>Horror.investigate();
+  layer.append(d);},
+ openDrawer(title,build){
+  $("drawerTitle").textContent=title;
+  const b=$("drawerBody");b.innerHTML="";build(b);
+  $("drawer").classList.remove("hidden");$("drawerVeil").classList.remove("hidden");},
+ closeDrawer(){$("drawer").classList.add("hidden");$("drawerVeil").classList.add("hidden");},
+ openMap(){
+  this.ensureUI();
+  this.openDrawer("楼层地图",b=>{
+   const g=document.createElement("div");g.className="map-grid";
+   for(const k in LOCS){
+    const c=document.createElement("button");c.className="map-cell";
+    const cur=k===S.loc,seen=S.horrorui.visited.includes(k);
+    if(cur)c.classList.add("cur");else if(!seen)c.classList.add("dim");
+    c.innerHTML="<b>"+LOCS[k].name+"</b>"+(cur?"<span class='sub'>你在这里</span>":seen?"<span class='sub'>已探索</span>":"<span class='sub'>？未探索</span>");
+    c.onclick=()=>{HorUI.closeDrawer();if(!cur)moveTo(k)};
+    g.append(c);}
+   b.append(g);
+   const p=document.createElement("p");p.className="small";p.style.marginTop="10px";
+   p.textContent="点击地点即可前往。移动不消耗时间；完成一次调查才会推进时间。";b.append(p);});},
+ openHandbook(){
+  this.ensureUI();
+  this.openDrawer("调查手册 · 守则",b=>{
+   const rules=S.rules&&S.rules.length?S.rules:DEFAULT_RULES;
+   const clues=(S.horror&&S.horror.clues)||[];
+   const memo=(S.horror&&S.horror.memo)||[];
+   rules.forEach((r,i)=>{
+    const num=i+1,item=document.createElement("div");item.className="hb-rule";
+    const rt=document.createElement("div");rt.className="rt";
+    const no=document.createElement("span");no.className="no";no.textContent="守则 "+num;rt.append(no);
+    const owned=!!(this.RULE_CLUE[num]&&clues.includes(this.RULE_CLUE[num]));
+    const violated=memo.some(m=>new RegExp("第\\s*"+num+"\\s*条").test(m.r));
+    if(owned){const c=document.createElement("span");c.className="chip ok";c.textContent="已有证据";rt.append(c)}
+    if(violated){const c=document.createElement("span");c.className="chip bad";c.textContent="曾违反";rt.append(c)}
+    if(!owned&&!violated){const c=document.createElement("span");c.className="chip";c.textContent="未验证";rt.append(c)}
+    item.append(rt);
+    const tx=document.createElement("div");tx.className="rtext";tx.textContent=r;item.append(tx);
+    const rl=document.createElement("div");rl.className="rlink";
+    if(this.RULE_CLUE[num]){
+     if(owned){const btn=document.createElement("button");btn.textContent="查看相关证据 →";btn.onclick=()=>this.openEvidence();rl.append(btn)}
+     else rl.textContent="尚未找到能验证这条守则的线索。";}
+    else rl.textContent="这条守则目前没有对应的物证。";
+    item.append(rl);
+    if(violated){
+     const mm=document.createElement("div");mm.className="memo";
+     mm.textContent="违规记录："+memo.filter(m=>new RegExp("第\\s*"+num+"\\s*条").test(m.r)).map(m=>"第"+m.d+"天 "+m.t+" "+m.r).join("；");
+     item.append(mm);}
+    b.append(item);});
+   const foot=document.createElement("div");foot.className="hb-foot";
+   foot.innerHTML="怪异度 <b>"+(S.st.weird||0)+"/100</b> · 理智 "+(S.st.san||0)+"/100<br>怪异度越高，周围越不对劲——守则本身也可能开始说谎。";
+   b.append(foot);});},
+ openEvidence(){
+  this.ensureUI();
+  this.openDrawer("调查笔记 · 证据",b=>{
+   const clues=(S.horror&&S.horror.clues)||[];
+   const g=document.createElement("div");g.className="ev-grid";
+   this.ORDER.forEach(k=>{
+    const e=this.EV[k],got=clues.includes(k);
+    const c=document.createElement("div");c.className="ev-card"+(got?" got":" ev-unknown");
+    const th=document.createElement("div");th.className="th";
+    if(got){
+     if(e.sheet){th.style.backgroundImage="url('"+e.sheet+"')";th.style.backgroundSize="300% 400%";th.style.backgroundPosition=e.pos;}
+     else th.innerHTML=ic(e.icon);
+     c.append(th);
+     const h=document.createElement("h5");h.textContent=e.name;c.append(h);
+     const w=document.createElement("div");w.className="ew";w.textContent="在哪里："+e.where;c.append(w);
+     const f=document.createElement("div");f.className="ef";f.textContent="已确认："+e.fact;c.append(f);
+    }else{
+     th.textContent="？";c.append(th);
+     const h=document.createElement("h5");h.textContent="未发现的证据";c.append(h);
+     const w=document.createElement("div");w.className="ew";w.textContent=e.hint;c.append(w);}
+    g.append(c);});
+   b.append(g);
+   if(clues.includes("file")&&clues.includes("footage")&&!clues.includes("backup"))
+    b.insertAdjacentHTML("beforeend","<div class='ev-link'>档案上的编号与录像里的时间戳，也许能在机房的旧服务器上相互印证。</div>");
+   if(clues.includes("backup")&&clues.includes("route"))
+    b.insertAdjacentHTML("beforeend","<div class='ev-link'>路线已与门禁备份核对无误：下两层，穿过无编号的门。</div>");
+   else if(clues.includes("backup"))
+    b.insertAdjacentHTML("beforeend","<div class='ev-link'>备份显示真正的出口在消防楼梯后方——还需要一份可信的路线。</div>");});},
+ ambientOn(){if(this._tmr)return;this._tmr=setInterval(()=>this.ambientTick(),3600);},
+ ambientOff(){clearInterval(this._tmr);this._tmr=null;},
+ ambientTick(){
+  if(!S||!isHorror()||S.ended||this.reduced())return;
+  $("game").classList.toggle("fx-high",S.st.san<40);
+  if(S.st.san<80&&Math.random()<0.3){const d=$("dayInfo");d.classList.remove("flick");void d.offsetWidth;d.classList.add("flick");}
+  if(S.st.san<60&&this._curNid&&Math.random()<0.3){
+   const av=$("avatar").querySelector(".av.expr");
+   if(av){const bak=av.style.backgroundPosition;const w=ri(2,5);
+    av.style.backgroundPosition=(((w-1)%3)*50)+"% "+(w>3?"100%":"0%");
+    setTimeout(()=>{av.style.backgroundPosition=bak},420);}}
+  if(S.st.san<60&&Math.random()<0.22)this.wordGlitch();},
+ wordGlitch(){
+  const t=$("text");const s=t.textContent;if(!s)return;
+  const idx=[];for(let i=0;i<s.length;i++)if(/[\u4e00-\u9fa5]/.test(s[i]))idx.push(i);
+  if(idx.length<2)return;
+  const p=idx[ri(0,idx.length-1)];
+  const ch="异序的不在是我有他个时门灯".charAt(ri(0,13));
+  const now=s.slice(0,p)+ch+s.slice(p+1);
+  t.textContent=now;
+  setTimeout(()=>{if(t.textContent===now)t.textContent=s;},380);},
+ bell(){
+  if(this.reduced())return;
+  const g=$("game");g.classList.add("flick");setTimeout(()=>g.classList.remove("flick"),520);},
+ init(){
+  $("chatSend").onclick=()=>HorUI.send();
+  $("chatIn").onkeydown=e=>{if(e.key==="Enter")HorUI.send()};
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")HorUI.closeDrawer()});},
+ send(){
+  const v=$("chatIn").value.trim();if(!v||LLM_BUSY)return;
+  $("chatIn").value="";
+  if(this.chatTarget)return npcTurn(this.chatTarget,v);
+  if(isHorror())return Horror.resolveFree(v);
+  toast("先点击一位同事开始对话","#8ab6d6");}
+};
+
+/* ============ UI 基础 ============ */
+function toast(txt,color){const t=document.createElement("div");t.className="toast";t.style.borderColor=color||"#4d637f";t.textContent=txt;$("toasts").append(t);setTimeout(()=>t.remove(),2600)}
+function logIt(line){const p=document.createElement("p"),b=document.createElement("b");b.textContent=S.day+"天 "+timeStr()+" ";p.append(b,document.createTextNode(line));$("log").prepend(p);while($("log").children.length>60)$("log").lastChild.remove()}
+function say(sp,txt,opts=[],hint=""){$("speaker").textContent=sp;$("text").textContent=txt;
+ const o=$("opts");o.innerHTML="";opts.forEach(l=>{const b=document.createElement("button");b.className="choice";if(l[2])b.innerHTML=l[0];else b.textContent=l[0];b.onclick=l[1];o.append(b)});
+ $("hint").textContent=hint||"";
+ HorUI.onSay(sp);}
+ function chatMode(sp,txt,npcId){
+  HorUI.chatTarget=npcId;
+  $("speaker").textContent=sp;$("text").textContent=txt;$("hint").textContent="自由对话中，回车发送";
+  $("opts").innerHTML="";const b=document.createElement("button");b.className="choice mini";b.textContent="结束对话";b.onclick=()=>{HorUI.chatTarget=null;$("chatrow").classList.add("hidden");$("chatrow").classList.remove("on");render()};$("opts").append(b);
+  $("chatrow").classList.remove("hidden");$("chatrow").classList.add("on");
+ $("chatIn").placeholder="对"+NPCS[npcId].name+"说…";$("chatIn").value="";
+ HorUI.onSay(sp);}
+function applyFx(fx,silent){
+ const map={mood:["心情","#5fce8f"],energy:["体力","#f2c879"],kpi:["绩效","#8ab6d6"],favor:["主管好感","#f2b56b"],danger:["危险度","#e06060"],san:["理智","#b9a0d6"],weird:["怪异度","#c96a9a"],qi:["斗志","#ff9d5c"]};
+ for(const k in fx){if(!fx[k])continue;const key=k==="credit"?"kpi":k;
+  if(key in S.st){S.st[key]=clamp(S.st[key]+fx[key],0,100);if(!silent)toast(map[key][0]+(fx[key]>0?"+":"")+fx[key],map[key][1])}
+  else if(key==="money"){S.money=Math.max(0,S.money+fx[key]);if(!silent)toast("存款"+(fx[key]>0?"+":"")+"¥"+fx[key],"#f2c879")}
+  else if(key==="snacks"){S.snacks=Math.max(0,S.snacks+fx[key]);if(!silent)toast("零食×"+S.snacks,"#f2c879")}}
+ for(const k in fx){const m=k.match(/^rel_(\w+)$/);if(m&&S.rel[m[1]]!=null){S.rel[m[1]]=clamp(S.rel[m[1]]+fx[k],0,100);if(!silent)toast(NPCS[m[1]].name+"关系"+(fx[k]>0?"+":"")+fx[k],"#8ab6d6")}}
+ if(S.st.san<=0)return endGame("san0");if(S.st.weird>=100)return endGame("weird");
+ render();}
+function advanceTime(){S.slot++;saveGame();
+ if(isHorror()&&S.slot===6)HorUI.bell();
+ if(S.slot>=SLOTS.length){evening();return}
+ render();}
+function timeStr(){return S.slot>=SLOTS.length?"18:00 下班":SLOTS[S.slot]}
+function render(){
+ if(!S)return;
+ const g=$("game");g.className="mode-"+S.mode;
+ g.classList.toggle("dusk",isHorror()&&S.slot>=6);
+ g.classList.toggle("fx-high",isHorror()&&S.st.san<40);
+ $("dayInfo").textContent="第"+S.day+"天 "+timeStr();
+ $("modeName").textContent=modeName();
+ $("money").textContent="¥"+S.money.toLocaleString();
+ const loc=LOCS[S.loc];const sc=$("scene");
+ const sceneBg=(S.slot>=5?(loc.horrorBg||loc.night||loc.bg):loc.bg);
+ sc.style.backgroundImage="url('"+sceneBg+"')";
+ sc.classList.toggle("night",S.slot>=4&&!isHorror());
+ $("locbar").innerHTML="";
+ for(const k in LOCS){if(LOCS[k].horror&&!isHorror())continue;const b=document.createElement("button");b.className="loc"+(k===S.loc?" cur":"");b.textContent=LOCS[k].name;b.onclick=()=>moveTo(k);$("locbar").append(b)}
+ if(isHorror()){
+  HorUI.ensureUI();
+  $("locName").textContent=LOCS[S.loc].name;
+  $("goal").textContent=HorUI.goalText();
+  $("sanTopV").textContent=S.st.san;
+  $("sanTopF").style.width=S.st.san+"%";
+  HorUI.markers();HorUI.renderQuick();HorUI.ambientOn();
+ }else{HorUI.ambientOff();HorUI.closeDrawer();}
+ document.querySelectorAll(".npc").forEach(e=>e.remove());
+ const present=Object.keys(NPCS).filter(k=>{const n=NPCS[k];if(!n.locs.includes(S.loc))return false;
+  if(k==="chen")return isHorror()||S.mode==="fun";if(k==="zhao")return S.loc==="lobby"&&(S.slot>=3||isHorror());if(k==="wu")return true;
+  if(k==="hong")return S.loc==="lobby";return true});
+ present.forEach((k,i)=>{const n=NPCS[k];const b=document.createElement("button");b.className="npc";
+  b.dataset.name=n.name;
+  b.style.left=(4+i*24)+"%";b.style.backgroundImage="url('"+(n.img==="c"?"assets/pixel/characters-chibi.png":"assets/pixel/expansion-01/npc-chibi.png")+"')";
+  b.style.backgroundPosition=(n.idx*33.333)+"% 0";b.title=n.name+" · "+n.tag+(isHorror()&&k==="chen"?"（半透明）":"");
+  b.setAttribute("aria-label",n.name);
+  if(isHorror()&&k==="chen")b.style.opacity=.35;b.onclick=()=>openChat(k);$("scene").append(b)});
+ const bars=[["mood","心情"],["energy","体力"],["kpi","绩效"],["favor","好感"],["danger","危险"]];
+ if(isFun())bars.splice(3,0,["qi","斗志"]);
+ if(isHorror())bars.splice(2,2,["san","理智"],["weird","怪异"]);
+ $("bars").innerHTML=bars.map(([k,nm])=>'<div class="meter">'+nm+'<div class="track"><div class="fill '+k+'" style="width:'+S.st[k]+'%"></div></div></div>').join("")
+  +(isFun()?'<div class="meter">零食×'+S.snacks+"</div>":"");
+ $("selfPanel").innerHTML="第<b>"+S.day+"</b>/10天 · 情报"+S.intel+" · 盟友"+S.allies.length+"<br><span style='color:#8398ad'>"+S.dayLog.slice(-2).join("；")+"</span>";
+ renderActions();}
+function moveTo(k){
+ if(isHorror()){
+  Horror.moveTo(k);
+  HorUI.ensureUI();
+  if(!S.horrorui.visited.includes(k))S.horrorui.visited.push(k);
+  HorUI.showLocBanner(LOCS[k].name);
+  return;}
+ S.loc=k;if(k==="wc")return toiletFree();render();$("text").textContent="你来到了"+LOCS[k].name+"。";}
+/* ============ 行动（认真/娱乐版） ============ */
+function renderActions(){
+ if(isHorror())return;
+ const A=$("actions");
+ const btn=(label,desc,fn,icon)=>'<button class="act" onclick="Game.'+fn+'">'+ic(icon)+"<b>"+label+"</b>"+(desc?'<small>'+desc+"</small>":"")+"</button>";
+ let h="";
+ h+="<h4>摸鱼要紧</h4><details class='grp'><summary>"+ic("phone")+"玩手机</summary><div class='sub'>"
+  +btn("回消息","心情+5","act('msg')","phone")+btn("刷短视频","心情+8 危险+8","act('video')","phone")+btn("打手游","心情+10 危险+10","act('game')","phone")+btn("看小说","心情+6 危险+6","act('novel')","phone")+"</div></details>";
+ h+="<details class='grp'><summary>"+ic("monitor")+"电脑冲浪</summary><div class='sub'>"
+  +btn("看B站","心情+8 危险+12","act('bili')","monitor")+btn("看电影","心情+10 危险+15","act('movie')","monitor")+btn("玩摩尔庄园","心情+12 危险+8","act('mole')","monitor")+"</div></details>";
+ h+='<button class="act" onclick="Game.act(\'walk\')" '+(S.loc!=="roof"&&S.loc!=="lobby"?"disabled":"")+'>'+ic("walk")+"<b>散步</b><small>去天台/大堂走走</small></button>";
+ h+="<h4>身体革命</h4>";
+ const wc=S.wcCount>=3;
+ h+='<button class="act" onclick="Game.toiletFree()" '+(wc?"disabled":"")+'>'+ic("wc")+"<b>带薪拉屎</b><small>"+(wc?"今日已蹲3次，腿麻了":"不占时间 心情+ 体力+（3次/天）")+"</small></button>";
+ h+="<h4>正经事</h4>";
+ h+=btn("认真工作","绩效+10 主管好感+2","act('work')","briefcase");
+ h+="<h4>职场修罗场</h4>";
+ h+="<details class='grp'><summary>"+ic("users")+"对同事出手</summary><div class='sub'>"+["lin","wu","he","wei"].map(k=>'<button class="choice" onclick="Game.politics(\'peer\',\''+k+'\')">'+NPCS[k].name+"（"+NPCS[k].tag+"）</button>").join("")+"</div></details>";
+ h+="<details class='grp'><summary>"+ic("crown")+"对上司出手</summary><div class='sub'>"+'<button class="choice" onclick="Game.politics(\'up\',\'zhou\')">周主管（汇报/邀功/拍马/硬刚）</button>'+"</div></details>";
+ h+="<details class='grp'><summary>"+ic("sprout")+"对下属出手</summary><div class='sub'>"+'<button class="choice" onclick="Game.politics(\'down\',\'wu\')">小吴（使唤/画饼/请奶茶）</button>'+"</div></details>";
+ if(S.loc==="pantry")h+='<button class="act" onclick="Game.act(\'snack\')" '+(S.snackToday?"disabled":"")+'>'+ic("cookie")+"<b>顺一包零食</b><small>"+(S.snackToday?"今天拿过了，做人要克制":"塞进包里，晚上带回家（有小风险）")+"</small></button>";
+ if(isFun()&&S.loc==="boss")h+=btn("挑战领导宝可梦","与PPT暴龙正面对决！","startBattle(&quot;zhou&quot;)","zap");
+ if(isFun()&&S.day>=8&&S.loc==="boss")h+=btn("决战：大老板","最终之战，决定结局","startBattle(&quot;big&quot;)","crown");
+ A.innerHTML=h;}
+/* 摸鱼与日常 */
+const ACT_FX={
+ msg:{label:"回消息",fx:{mood:5},risk:4},video:{label:"刷短视频",fx:{mood:8,energy:-2},risk:9},
+ game:{label:"打手游",fx:{mood:10,energy:-4},risk:11},novel:{label:"看小说",fx:{mood:6},risk:7},
+ bili:{label:"看B站",fx:{mood:8,energy:-2},risk:13},movie:{label:"看电影",fx:{mood:10,energy:-4},risk:16},
+ mole:{label:"玩摩尔庄园",fx:{mood:12,energy:-2},risk:9},
+ work:{label:"认真工作",fx:{kpi:10,favor:2,energy:-12,mood:-4},risk:0},
+ walk:{label:"散步",fx:{mood:8,energy:6},risk:0},
+ wc:{label:"带薪拉屎",fx:{mood:6,energy:6,danger:4},risk:0},
+ snack:{label:"顺零食",fx:{snacks:1,mood:4},risk:10}};
+async function act(id){
+ if(LLM_BUSY)return;const a=ACT_FX[id];if(!a)return;
+ if(id==="snack")S.snackToday=true;
+ if(id==="snack"){
+  const caught=Math.random()*100<a.risk;
+  say("旁白",caught?"你刚把零食塞进包里，转身就撞见何姐端着咖啡站在门口。她微笑着看了看你的包，什么都没说。":"你面不改色地将一包零食滑入背包内层，动作行云流水，颇具职业素养。",[["若无其事离开",()=>{applyFx(caught?{snacks:1,favor:-5,danger:12,mood:-6}:{snacks:1,mood:4});logIt(caught?"顺零食被抓包！":"顺零食成功，晚上加餐");advanceTime()}]]);return}
+ applyFx(a.fx);
+ let caught=false;
+ if(a.risk>0&&S.slot!==2){const d=Math.max(0,S.st.danger-20);caught=Math.random()*100<a.risk+d/6;}
+ if(caught){S.st.danger=clamp(S.st.danger+18,0,100);S.st.favor=clamp(S.st.favor-6,0,100);
+  logIt(a.label+"时被周主管撞见！");
+  say("周主管",pick(["（不知何时出现在你身后）'嗯？这个很好玩吗？'","（敲了敲你的隔板）'工作做完了吗？'","（盯着你的屏幕）'下班前，把这个流程图补给我。'"]),[["点头认错",()=>{applyFx({mood:-8,kpi:-4});advanceTime()}],["狡辩'我在调研'",()=>{if(Math.random()<0.4){say("周主管","'……行吧，记得出个调研报告。'你竟然混过去了。",[["溜了",()=>{advanceTime()}]]);logIt("狡辩成功！")}else{say("周主管","'调研？那我帮不了你。'他记下了什么。你的绩效在颤抖。",[["完了",()=>{applyFx({mood:-6,kpi:-6});advanceTime()}]]);logIt("狡辩失败…")}}]]);render();return}
+ S.st.danger=clamp(S.st.danger-(S.slot===2?15:3),0,100);
+ logIt(a.label);
+ const p=S.slot===2?0.2:0.45;
+ if(Math.random()<p){await randomEvent();return}
+ say("旁白",pick(["时间悄然过去了。办公室的键盘声此起彼伏。","什么都没发生。平静得可疑。","你处理完了手头的事，喝了一口水。"]),[["继续",()=>advanceTime()]]);
+ render();}
+/* ============ 随机事件（认真/娱乐版，大模型生成） ============ */
+ function stateSummary(){
+ return "第"+S.day+"天"+timeStr()+"，地点："+LOCS[S.loc].name+"。心情"+S.st.mood+"/100，体力"+S.st.energy+"，绩效"+S.st.kpi+"，主管好感"+S.st.favor+"，危险度"+S.st.danger+(isFun()?"，斗志"+S.st.qi:"")+(isHorror()?"，理智"+S.st.san+"，怪异度"+S.st.weird:"")+"。存款¥"+S.money+"，零食×"+S.snacks+"，情报×"+S.intel+"。";}
+const NPC_ROSTER=()=>"NPC名单（只用这些名字）：周主管（上司）、林棠（资深同事）、小吴（实习生）、何姐（HR）、阿伟（IT）、前台小虹、保安老赵"+(isHorror()?"、陈序（神秘前员工）":"")+"。";
+ async function genEvent(){
+ const sys="你是职场文字游戏《职场神话》的主持人（GM）。当前模式："+modeName()+"。风格要求："+MODES[S.mode].sys
+  +"\n"+NPC_ROSTER()
+  +"\n请生成一个此刻可能发生的随机事件，贴合当前状态与最近发生的事。严格只输出一个JSON对象，格式："
+  +'\n{"title":"事件标题","text":"事件描述，80~150字","options":[{"label":"选项（10字内）","result":"该选项的直接结果，30~60字","mood":0,"energy":0,"kpi":0,"favor":0,"danger":0,"money":0,'
+  +(isHorror()?'"sanity":0,"weird":0,':'"qi":0,')+'"rel_zhou":0,"rel_lin":0,"rel_wu":0}'
+  +'\n]}要求：恰好3个选项；数值为-15~15的整数，可以有0；不要输出JSON以外的任何文字。';
+ const msg=sys+"\n\n当前状态："+stateSummary()+"\n最近发生："+(S.hist.slice(-3).join("；")||"（刚入职）")+"\n请输出JSON。";
+ const txt=await llm([{role:"user",content:msg}],{maxTokens:750});
+ return parseEvent(txt);}
+async function randomEvent(){
+ const fb=()=>{const ev0=pick(FALLBACK[S.mode]);return {title:ev0.title,text:ev0.text,options:ev0.options.map(o=>({label:o.label,result:o.result,fx:o.fx||{}}))}};
+ const waiting=["领导正在思考…","事件正在发酵…","职场之灵占卜中…","命运的骰子滚动中…"];
+ LLM_BUSY=true;const my=++evToken;
+ const show=ev=>{LLM_BUSY=false;
+  S.hist.push(ev.title);if(S.hist.length>8)S.hist.shift();
+  say("【事件】"+ev.title,ev.text,ev.options.map(o=>[o.label,()=>{
+    applyFx(o.fx);logIt("【"+ev.title+"】"+o.label+"："+o.result);
+    say("旁白",o.result,[["继续",()=>advanceTime()]]);
+    if(o.fx.battle)setTimeout(()=>startBattle(o.fx.battle),50);}]));
+  render();};
+ say("旁白",pick(waiting),[["离线跳过（用内置事件）",()=>{evToken++;show(fb())}]],"正在通过大模型生成事件…");
+ let ev=null;
+ try{ev=await genEvent();if(my!==evToken)return}catch(e){setLLM(false)}
+ if(!ev)ev=fb();
+ show(ev);}
+/* ============ NPC 对话 ============ */
+function openChat(nid){
+ const n=NPCS[nid];
+ HorUI.chatTarget=nid;
+ const quick=[["闲聊",()=>npcTurn(nid,"（你凑过去闲聊）最近怎么样？")],["打听消息",()=>npcTurn(nid,"（你压低声音）最近公司有什么动静？")]];
+ if(nid==="zhou")quick.push(["汇报工作",()=>npcTurn(nid,"（整理思路）主管，汇报一下我最近的进展。")]);
+ if(nid==="wu")quick.push(["鼓励TA",()=>npcTurn(nid,"（拍拍肩膀）刚来都这样，慢慢来。")]);
+ if(isHorror()&&nid==="zhao")quick.push(["问问守则",()=>npcTurn(nid,"老赵，办公室守则……到底是什么东西写的？")]);
+ if(nid==="chen")quick.push(["试探",()=>npcTurn(nid,"（轻声）你就是陈序？大家都不记得你。")]);
+ quick.push(["直接打字",()=>chatMode(n.name,"（TA看着你，等你开口）",nid)]);
+ $("speaker").textContent=n.name+" · "+n.tag;
+ $("text").textContent=pick([n.name+"抬起头看了你一眼。","你走到"+n.name+"身边。",n.name+"停下了手里的活。"]);
+ $("hint").textContent="选择话题，或点「直接打字」自由输入";
+ $("opts").innerHTML="";quick.forEach(([l,f])=>{const b=document.createElement("button");b.className="choice";b.textContent=l;b.onclick=f;$("opts").append(b)});
+ HorUI.onSay(n.name+" · "+n.tag);}
+async function npcTurn(nid,userLine){
+ const n=NPCS[nid];LLM_BUSY=true;
+ say(n.name,"……",[["（先不聊了）",()=>render()]],"对方正在想措辞…");
+ const c=S.chat[nid]||(S.chat[nid]=[]);
+ const sys="你正在职场文字游戏《职场神话》（"+modeName()+"）中扮演NPC「"+n.name+"」（"+n.tag+"）。人设："+n.style+"与主角当前关系："+S.rel[nid]+"/100。"
+  +(nid==="chen"?"你知道办公室所有秘密，说话轻而飘，半真半假。":"")
+  +(isHorror()?Horror.npcContext(nid):"")
+  +"\n严格用"+n.name+"的第一人称口吻回复玩家，1~3句话，可以带动作描写（括号内）。不要出戏，不要说自己是AI，不要输出任何JSON或列表。";
+ const msgs=[{role:"system",content:sys}];
+ c.slice(-4).forEach(m=>msgs.push(m));
+ msgs.push({role:"user",content:userLine});
+ let reply=null;
+ try{reply=(await llm(msgs,{maxTokens:200,temp:0.85})).trim().slice(0,300)}catch(e){setLLM(false)}
+ if(!reply)reply=pick(CHAT_FALLBACK[nid]||["……"]);
+ if(isHorror())reply=Horror.onNpcTalk(nid,userLine,reply);
+ c.push({role:"user",content:userLine},{role:"assistant",content:reply});if(c.length>10)c.splice(0,2);
+ LLM_BUSY=false;
+ S.rel[nid]=clamp(S.rel[nid]+ri(1,3),0,100);
+ if(userLine.includes("动静")||userLine.includes("消息")){if(Math.random()<0.45){S.intel++;toast("获得情报×1","#f2c879")}}
+ render();
+ chatMode(n.name,reply,nid);
+ $("text").textContent+="\n\n（关系"+S.rel[nid]+"）";
+ logIt("和"+n.name+"聊了会天");}
+/* ============ 职场政治 ============ */
+const POLITICS={
+ peer:{title:"对同事出手",acts:[["甩锅","把一个锅悄悄挪到TA头上",{kpi:6,danger:8},-8,-12],["抢功","把TA的成果包装成自己的",{kpi:8,favor:4,danger:10},-10,-12],["结盟","提议结成攻守同盟",{},5,-5],["撕逼","当面掀桌子对线",{mood:6,danger:6},-12,-15]]},
+ up:{title:"对上司出手",acts:[["汇报工作","带着亮点去汇报",{favor:5,kpi:2},4,-2],["邀功","把干成的事大声说",{favor:6,kpi:3,danger:4},0,-2],["拍马屁","彩虹屁五连",{favor:8,mood:-4},4,0],["硬刚","当众反驳TA的安排",{mood:10,favor:-15,danger:12},0,-8]]},
+ down:{title:"对下属出手",acts:[["使唤TA","把杂活都派下去",{kpi:6,energy:8},-6,-10],["画饼","描绘一个晋升的美好未来",{mood:2},5,-10],["请奶茶","一杯奶茶收买人心",{money:-20,mood:4},8,2]]}};
+async function politics(kind,tid){
+ const P=POLITICS[kind],n=NPCS[tid];
+ const lines=P.acts.map((a,i)=>[a[0],()=>doPolitics(kind,tid,i)]);
+ say(P.title+" · 目标："+n.name+"（关系"+S.rel[tid]+"，情报×"+S.intel+"）","你想对"+n.name+"做什么？欺软怕硬是职场通行证，但也是双刃剑。",lines);
+ async function doPolitics(kind,tid,i){
+  const P=POLITICS[kind],a=P.acts[i],n=NPCS[tid];
+  const power=S.st.kpi+S.intel*5+S.allies.length*8+S.st.favor/4;
+  let base=40+(power-S.rel[tid]*0.3)/2;
+  if(a[0]==="硬刚")base=20+S.st.kpi/4+(S.rel.zhou<40?20:0);
+  if(a[0]==="拍马屁")base=85;
+  if(a[0]==="汇报工作"||a[0]==="请奶茶")base=90;
+  if(a[0]==="结盟")base=S.rel[tid]>45?75:35;
+  const ok=Math.random()*100<clamp(base,5,95);
+  const fx={...a[2]};
+  if(ok){if(a[3])fx["rel_"+tid]=a[3];if(kind==="peer"&&a[0]==="结盟"){if(!S.allies.includes(tid))S.allies.push(tid);}}
+  else{fx["rel_"+tid]=(a[4]||-8);if(a[0]==="甩锅"||a[0]==="抢功")fx.danger=(fx.danger||0)+10;fx.mood=(fx.mood||0)-5;}
+  applyFx(fx);
+  logIt(P.title+"→"+n.name+"："+a[0]+(ok?"（成功）":"（失败）"));
+  LLM_BUSY=true;const my=++ppToken;
+  say("旁白","（正在推演这场交锋…）",[["跳过",()=>{ppToken++;show()}]]);
+  let line=null;try{line=(await llm([{role:"user",content:"职场游戏《职场神话》（"+modeName()+"）。主角对"+n.name+"（"+n.tag+"，人设："+n.style+"）发动了「"+a[0]+"」（意图："+a[1]+"），结果是"+(ok?"成功":"失败")+"。主角状态："+stateSummary()+"。请用60~100字生动描述这场交锋的过程与"+n.name+"的反应，符合模式风格。只输出描述本身。"}],{maxTokens:220,temp:0.9})).trim();if(my!==ppToken)return}catch(e){}
+  function show(){say("【"+a[0]+" · "+(ok?"得手":"翻车")+"】",line||(ok?"你得手了，一切尽在掌握。":"翻车了。"+n.name+"的反应比你预想的激烈，办公室的目光都聚了过来。"),[["继续",()=>advanceTime()]])}
+  show();}}
+/* ============ 带薪拉屎（免费，不占槽） ============ */
+function toiletFree(){render();
+ if(S.wcCount>=3){say("卫生间","你的腿已经麻了，再蹲下去明天就得拄拐上班。带薪厕所虽好，可不要贪蹲。",[["回工位",()=>moveTo("desk")]]);return}
+ say("卫生间","你锁上隔间门，蹲下，掏出手机。这是打工人一天中最平等的时刻。",[["再蹲一会儿（不占时间）",()=>{applyFx({mood:3,energy:3,danger:3});S.wcCount++;logIt("带薪拉屎×"+S.wcCount);
+  if(S.wcCount===3&&Math.random()<0.5){say("清洁阿姨","（敲了敲门）'小伙子，你从上午蹲到现在了吧？小心腿麻。'你听出门外不止一个人的脚步声。",[["社死离场",()=>{applyFx({mood:-8,danger:5});$("text").textContent="你红着耳朵冲出卫生间。从此这个隔间有了传说。"}]])}else say("旁白","神清气爽。世上最美味的食物是工位上的零食，最贵的包厢是公司的厕所。",[["继续",()=>render()]])}],["冲水走人",()=>moveTo("desk")]])}
+/* ============ 傍晚 & 一天结束（认真/娱乐版） ============ */
+function evening(){
+ if(isHorror())return Horror.evening();
+ render();
+ const opts=[];
+ opts.push([ic("moon")+"加班一小时",()=>{applyFx({kpi:10,favor:4,energy:-14,mood:-8,danger:-10});logIt("加班一小时");
+   say("旁白","整层楼渐渐暗下来，只有你的工位亮着。你已经记不清这是本周第几次加班了。",[["下班",()=>endDay()]]);},true]);
+ opts.push([ic("logout")+"准时开溜",()=>{applyFx({mood:10,energy:5,favor:-2});S.st.danger=Math.max(0,S.st.danger-30);logIt("18:00准时消失");endDay()},true]);
+ if(!S.snackToday)opts.push([ic("cookie")+"绕去茶水间拿零食",()=>{S.loc="pantry";act("snack")},true]);
+ say("18:00 · 下班时间","下班了。今天还剩最后一件事：怎么度过下班前的十分钟？",opts);}
+function endDay(){
+ saveGame();
+ S.st.danger=Math.max(0,S.st.danger-25);
+ if(S.st.mood<15&&Math.random()<0.4){say("旁白","走到楼下，你忽然不想回家，在花坛边站了很久。要不要撑到第十天，你有点不确定了。",[["再撑撑",()=>daySummary()],["明天提离职",()=>endGame("quit")]]);return}
+ daySummary();}
+async function daySummary(){
+ LLM_BUSY=true;const my=++summaryToken;
+ say("旁白","（大模型正在撰写今日小结…）",[["跳过",()=>{summaryToken++;LLM_BUSY=false;nextDay()}]]);
+ let line=null;
+ try{line=(await llm([{role:"user",content:"职场游戏《职场神话》（"+modeName()+"）。今天是第"+S.day+"天。状态："+stateSummary()+"。今日大事记："+(S.hist.slice(-4).join("；")||"平淡的一天")+"。请用40~70字、符合模式风格的旁白总结这一天，可以埋一个钩子或伏笔。只输出旁白本身。"}],{maxTokens:150,temp:0.95})).trim();if(my!==summaryToken)return}catch(e){}
+ LLM_BUSY=false;
+ const modal=$("modal");
+ $("overlay").classList.remove("hidden");
+ modal.className="card";modal.innerHTML="<div class='eyebrow'>第"+S.day+"天 · 结算</div><h1>"+(S.day>=10?"考核日到了":"夜深了")+"</h1><p>"+(line?esc(line):"这一天就这样过去了。办公室的灯熄了，故事还在继续。")+"</p><p class='small'>心情"+S.st.mood+" · 体力"+S.st.energy+" · 绩效"+S.st.kpi+" · 好感"+S.st.favor+" · 存款¥"+S.money+(isFun()?" · 斗志"+S.st.qi:"")+"</p><button class='primary' id='nextDayBtn'>"+(S.day>=10?"进入考核 →":"睡一觉，明天继续 →")+"</button>";
+ $("nextDayBtn").onclick=()=>{$("overlay").classList.add("hidden");nextDay()};}
+function nextDay(){
+ S.day++;S.slot=0;S.wcCount=0;S.snackToday=false;S.dayLog=[];
+ if(S.day>10)return endGame("review");
+ if(S.day===7){S.money+=S.salary;toast("发薪日！工资¥"+S.salary.toLocaleString(),"#f2c879");logIt("发薪日，到账¥"+S.salary)}
+ newDayStart();}
+async function newDayStart(){
+ if(isHorror())return Horror.newDayStart();
+ render();
+ say("旁白","第"+S.day+"天，09:00。你打卡进场，工位的椅子还是昨天的高度。",[]);
+ if(S.day===4){await randomEvent()}
+ else say("旁白",pick(["新的一天，摸鱼的人们已经就位。","打卡机滴的一声，你加入了战场。","晨光透过百叶窗，键盘声如潮水般涌来。"]),[["开始行动",()=>render()]]);
+ saveGame();}
+/* ============ 惊悚版守则（兼容入口；主界面走调查手册） ============ */
+function openRules(){
+ if(!isHorror())return;
+ const rules=S.rules&&S.rules.length?S.rules:DEFAULT_RULES;
+ const modal=$("modal");$("overlay").classList.remove("hidden");
+ modal.className="card";modal.innerHTML="<div class='eyebrow'>惊悚版 · 规则怪谈</div><h1>"+ic("book")+"办公室守则</h1><ul class='rulelist'>"+rules.map(r=>"<li>"+esc(r)+"</li>").join("")+"</ul><p class='small'>这些守则都可以在调查和逃生中验证。违反会损失理智，并提高怪异度。</p><button class='primary' id='rc'>合上守则</button>";
+ $("rc").onclick=()=>$("overlay").classList.add("hidden");}
+/* ============ 娱乐版：领导宝可梦对战 ============ */
+const BOSSES={
+ zhou:{name:"PPT暴龙",lv:"Lv.38",hp:130,type:"普通/加班系",moves:[["PPT轰炸",16],["扣绩效之爪",14],["画饼光线",10,true]]},
+ he:{name:"KPI金蝎",lv:"Lv.35",hp:110,type:"毒/绩效系",moves:[["绩效毒针",15],["调岗之钳",13]]},
+ wei:{name:"404幽灵",lv:"Lv.33",hp:100,type:"幽灵/机房系",moves:[["断电闪击",17],["重启咏叹调",9,true]]},
+ big:{name:"退休之影·大老板",lv:"Lv.60",hp:180,type:"传说/资本系",moves:[["裁员波",22],["岁月封印",16],["期权幻术",12,true]]}};
+const PMOVES=[["加班狂击","无视体力强攻",18],["甩锅反弹","信用与情报加成",10],["摸鱼回魂","回复25斗志",0],["零食投喂","消耗零食，有几率直接收服",5],["带薪拉屎","回复大量斗志，但挨一击",0]];
+let B=null;
+function startBattle(key,ctx){
+ const b=BOSSES[key];if(!b)return;
+ B={key,b,hp:b.hp,php:clamp(S.st.qi*2+60,60,140),phpMax:clamp(S.st.qi*2+60,60,140),turn:0,ctx:ctx||"周主管的气场实体化了！"};
+ const modal=$("modal");$("overlay").classList.remove("hidden");modal.className="card battle";battleUI("【对战开始】"+B.ctx+"\n"+b.name+"（"+b.lv+" · "+b.type+"）登场！你的斗志化为「社畜之魂」（HP "+B.php+"）。");}
+function battleUI(html){
+ const modal=$("modal");
+ modal.innerHTML="<div class='eyebrow'>娱乐版 · 宝可梦式对战</div><h1>"+esc(B.b.name)+" <span style='font-size:13px;color:#8fa0b3'>"+B.b.lv+" · "+B.b.type+"</span></h1>"
+  +"<div class='bwrap'><div class='fighter foe'><h3>"+esc(B.b.name)+"</h3><div class='hp'><div class='fill' style='width:"+(B.hp/B.b.hp*100)+"%'></div></div><div style='font-size:12px;color:#8fa0b3;margin-top:4px'>HP "+B.hp+"/"+B.b.hp+"</div></div>"
+  +"<div class='fighter'><h3>你（社畜之魂）</h3><div class='hp'><div class='fill' style='width:"+(B.php/B.phpMax*100)+"%'></div></div><div style='font-size:12px;color:#8fa0b3;margin-top:4px'>HP "+B.php+"/"+B.phpMax+"</div></div></div>"
+  +"<div class='blog' id='blog'>"+esc(html)+"</div>"
+  +"<div class='mvs'>"+PMOVES.map((m,i)=>'<button class="choice" id="mv'+i+'" '+(m[0]==="零食投喂"&&S.snacks<=0?"disabled title='没有零食了'":"")+">"+m[0]+"<br><small style='color:#8fa0b3'>"+m[1]+"</small></button>").join("")+"</div>"
+  +"<div style='text-align:center'><button class='primary hidden' id='bEnd'>继续</button></div>";
+ PMOVES.forEach((m,i)=>{$("mv"+i).onclick=()=>playerMove(i)});}
+async function playerMove(i){
+ PMOVES.forEach((_,k)=>{if($("mv"+k))$("mv"+k).disabled=true});
+ const [mname,,base]=PMOVES[i];let line="";
+ let dmg=0,heal=0,captured=false;
+ if(i===0)dmg=Math.round(rnd(base-5,base+7));
+ if(i===1)dmg=Math.round(rnd(6,12)+S.intel*2+S.allies.length*2);
+ if(i===2)heal=25;
+ if(i===3){if(S.snacks>0){S.snacks--;const chance=25+(1-B.hp/B.b.hp)*50;if(Math.random()*100<chance)captured=true;dmg=base}}
+ if(i===4){heal=35}
+ if(dmg)B.hp=Math.max(0,B.hp-dmg);
+ if(heal)B.php=Math.min(B.phpMax,B.php+heal);
+ line+="你使出了【"+mname+"】！";
+ if(captured){line+="\n"+B.b.name+"盯着零食，缓缓趴下……收服成功！！";}
+ else if(dmg)line+="造成了 "+dmg+" 点伤害！";
+ if(i===4)line+="\n（你蹲了一回合，对方趁机出手）";
+ if(!captured&&B.hp>0&&i!==2){
+  const mv=pick(B.b.moves);const [mvn,mvp,mvheal]=mv;
+  if(mvheal){B.hp=Math.min(B.b.hp,B.hp+mvp+8);line+="\n"+B.b.name+"使出【"+mvn+"】！回复了体力……PPT永远写不完！"}
+  else{const bd=Math.round(rnd(mvp-4,mvp+6));B.php=Math.max(0,B.php-bd);line+="\n"+B.b.name+"使出【"+mvn+"】！你受到 "+bd+" 点伤害！"}
+ }else if(i===2){const mv=pick(B.b.moves);const bd=Math.round(rnd(mv[1]-4,mv[1]+4));B.php=Math.max(0,B.php-bd);line+="\n你摸鱼的瞬间，"+B.b.name+"使出【"+mv[0]+"】！你受到 "+bd+" 点伤害！"}
+ B.turn++;
+ try{const t=(await llm([{role:"user",content:"职场宝可梦对战解说（热血搞笑风，30~60字）：玩家使用了【"+mname+"】（效果："+(captured?"收服成功":dmg?"造成"+dmg+"伤害":heal?"回复"+heal+"斗志":"-")+"），对手"+B.b.name+"HP剩"+B.hp+"，玩家HP剩"+B.php+"。"+(captured?"":"请补一句对手反击的画面。只输出解说。")+"请输出JSON：{\"t\":\"解说\"}"}],{maxTokens:120,temp:1.0,timeout:15000}));
+  const j=parseJSON(t);if(j.t)line=j.t+"\n"+line}catch(e){}
+ battleUI(line);
+ if(captured)return battleEnd("captured");
+ if(B.hp<=0)return battleEnd("win");
+ if(B.php<=0)return battleEnd("lose");}
+function battleEnd(r){
+ const modal=$("modal");let title,txt,fx;
+ if(r==="win"){title="胜利！";txt=B.b.name+"倒下了，化作一片PPT碎片。周主管（不知道为什么）向你竖起了大拇指。";
+  fx={favor:12,kpi:8,money:500,mood:12,qi:15};
+  if(B.key==="big")S.flags.bigBeaten=true;
+  logIt("宝可梦对战获胜："+B.b.name);}
+ else if(r==="captured"){title="收服成功！";txt=B.b.name+"加入了你的图鉴！周主管看着空无一物的投影仪陷入沉思。";fx={favor:15,mood:15,qi:10,kpi:5};S.flags["pet_"+B.key]=true;logIt("收服领导宝可梦："+B.b.name)}
+ else{title="斗败……";txt="你的社畜之魂溃散了。你在工位上趴了半小时才缓过来，同事给你的桌上放了一瓶脉动。";fx={mood:-12,qi:5,favor:-3};logIt("宝可梦对战败北")}
+ modal.innerHTML="<div class='eyebrow'>对战结束</div><h1>"+title+"</h1><p>"+txt+"</p><button class='primary' id='bE'>回到工位</button>";
+ $("bE").onclick=()=>{$("overlay").classList.add("hidden");applyFx(fx);render()};}
+/* ============ 结局（认真/娱乐版） ============ */
+async function endGame(kind){
+ if(isHorror())return Horror.endGame(kind);
+ if(S.ended)return;S.ended=true;
+ HorUI.ambientOff();
+ const modal=$("modal");$("overlay").classList.remove("hidden");modal.className="card";
+ let eyebrow,title,body,fx=null;
+ if(kind==="quit"){eyebrow="提前离场";title="主动离职";body="你把工牌放在了前台。走出大楼时天很蓝。你以为解脱了，直到新公司的入职群里，你看见一个叫陈序的人向你打招呼。"}
+ else if(kind==="review"){
+  const s=S.st;
+  if(S.mode==="serious"){
+   if(S.intel>=3&&S.allies.length>=2&&s.favor>=35){eyebrow="认真版 · 隐藏结局";title="斗倒周主管";body="考核会上，你与盟友们甩出三份证据链。周主管的微笑第一次僵住。三个月后，你坐进了那间办公室，抽屉里放着一包没吃完的零食——现在的你，也需要有人惧怕。职场神话，由此开始。";fx={salary:S.salary*2}}
+   else if(s.kpi>=65&&s.favor>=60){eyebrow="认真版 · 最佳结局";title="升职加薪";body="'本次季度晋升：是你。'周主管伸出手，笑得标准。涨薪30%。你想起第十天清晨的地铁，一切都值了——吗？"}
+   else if(s.kpi>=65&&s.favor<40){eyebrow="认真版 · 工具人结局";title="年度最佳工具人";body="绩效A，奖金一千。晋升名单上没有你。周主管拍拍你的肩：'年轻人，不要急。'你盯着他身后的工位，突然很想学他敲一敲别人的隔板。"}
+   else if(s.favor>=60&&s.kpi<40){eyebrow="认真版 · 老实人结局";title="忠诚老实人奖";body="'你很稳定。'这是考核结论的全部。稳定地加班，稳定地微笑，稳定地拿着这份工资。茶水间的零食，成了你唯一的反抗。"}
+   else if(s.mood<25){eyebrow="认真版 · 消耗殆尽";title="心先离职了";body="考核还没开始，你先在工位上发了一小时的呆。屏幕上是没写完的周报，标题是《我的十年规划》。你把它删了，打开招聘软件。"}
+   else{eyebrow="认真版 · 平凡结局";title="续约的打工人";body="考核结果：B，合格，续约。你请小吴喝了奶茶，和林棠在天台散了散步。这都不是神话，但日子还长，机会也还长。"}}
+  else{
+   if(S.flags.bigBeaten){eyebrow="娱乐版 · 传说结局";title="新任传说社长";body="退休之影消散时，整栋楼响起了掌声——包括打印机、咖啡机和大门。你接过工牌：'社长'。第一位向你汇报的员工，是变成训练家助理的周主管。图鉴完成度：100%。"}
+   else if(s.qi>=90&&s.mood>=80){eyebrow="娱乐版 · 悠闲结局";title="摸鱼真仙";body="你不打宝可梦，不抢功劳，只是每天准时消失在茶水间。传说你已参透'带薪真言'，连退休之影都绕着你走。仙人，请受徒儿一拜。"}
+   else if(s.favor<25){eyebrow="娱乐版 · 特殊结局";title="被HR宝可梦捕获";body="KPI金蝎的毒针命中要害。你被装进'优化球'，被传送去了另一个部门。醒来时，训练家何姐微笑着：'欢迎来到新图鉴。'"}
+   else{eyebrow="娱乐版 · 平凡结局";title="快乐的训练家";body="十天里你收服了零碎的宝可梦、零食和心情。日子不好不坏，但明天电视里的摩尔庄园会更新，人生也是。"}}
+ }
+ modal.innerHTML="<div class='eyebrow'>"+eyebrow+"</div><h1>"+title+"</h1><p>"+body+"</p><p class='small'>最终状态：绩效"+S.st.kpi+" · 好感"+S.st.favor+" · 心情"+S.st.mood+" · 存款¥"+S.money.toLocaleString()+(fx&&fx.salary?" · 新月薪¥"+fx.salary.toLocaleString():"")+"</p><button class='primary' id='re'>再来一局（换个版本？）</button>";
+ if(fx&&fx.salary)S.salary=fx.salary;
+ $("re").onclick=()=>{localStorage.removeItem("officeMyth");location.reload()};
+ localStorage.removeItem("officeMyth");}
+/* ============ 深浅色主题（羊皮纸浅色） ============ */
+function currentTheme(){return document.documentElement.classList.contains("light")?"light":"dark"}
+function setTheme(t){
+ document.documentElement.classList.toggle("light",t==="light");
+ try{localStorage.setItem("officeMythTheme",t)}catch(e){}
+ const b=$("themeBtn");
+ if(b){b.innerHTML=ic(t==="light"?"moon":"sun");b.title=t==="light"?"切换为深色主题":"切换为浅色（羊皮纸）主题";}}
+function toggleTheme(){setTheme(currentTheme()==="light"?"dark":"light")}
+/* ============ 存档 ============ */
+function saveGame(manual){try{if(S)localStorage.setItem("officeMyth",JSON.stringify(S));if(manual)toast("已存档","#5fce8f")}catch(e){}}
+function loadGame(){try{const d=localStorage.getItem("officeMyth");return d?JSON.parse(d):null}catch(e){return null}}
+/* ============ 启动 ============ */
+function titleScreen(){
+ $("game").className="boot";
+ const modal=$("modal");$("overlay").classList.remove("hidden");
+ const save=loadGame();
+ modal.className="card";modal.innerHTML="<div class='eyebrow'>办公室剧情游戏 · 大模型驱动</div><h1>职场神话</h1>"
+  +"<p>玩手机、带薪拉屎、B站、摩尔庄园、顺零食……以及勾心斗角、欺软怕硬、对上斗智斗勇。选择你的版本，创造属于你的职场神话。</p>"
+  +"<div class='modes'>"
+  +'<button class="mode" data-m="serious"><span class="em">'+ic("trend")+'</span><span style="flex:1"><b>'+MODES.serious.name+"</b><span class='mdesc'>"+MODES.serious.desc+"</span></span></button>"
+  +'<button class="mode" data-m="fun"><span class="em">'+ic("spark")+'</span><span style="flex:1"><b>'+MODES.fun.name+"</b><span class='mdesc'>"+MODES.fun.desc+"</span></span></button>"
+  +'<button class="mode hcard" data-m="horror"><span class="em">'+ic("flame")+'</span><span style="flex:1"><b>请于下班前离开</b><span class="tag">下班铃响过之后，这栋楼并不打算放你走。</span><span class="mdesc">七条守则 · 五份证据 · 一条真正的出口。查明陈序，然后在第二次广播响起前离开。</span></span></button>'
+  +"</div>"
+  +(save?"<button class='choice' id='cont'>"+ic("folder")+"继续上次进度（"+esc(save.mode)+" 第"+save.day+"天）</button> ":"")
+  +"<details class='help'><summary>连接与帮助</summary><div class='help-body'>后台大模型："+MODEL+"（<span id='titleLlm'>"+(llmOK===null?"检测中…":llmOK?"已连接":"离线（内置剧本，剧情照常进行）")+"</span>）。<br>若始终显示离线，请运行 <kbd>python serve.py</kbd> 后访问 <kbd>http://127.0.0.1:8787/game.html</kbd>。<br>进度自动保存在本机浏览器；即使完全离线，三个版本都可以完整通关。</div></details>";
+ modal.querySelectorAll(".mode").forEach(b=>b.onclick=()=>{startGame(b.dataset.m)});
+ if(save)$("cont").onclick=()=>{S=save;if(isHorror())Horror.ensure();HorUI.chatTarget=null;$("overlay").classList.add("hidden");
+  if(isHorror()&&S.slot>=SLOTS.length)return Horror.evening();
+  render();say("旁白","欢迎回来。第"+S.day+"天，故事继续。",[["开始行动",()=>render()]])};}
+function startGame(mode){
+ S=newState(mode);
+ if(mode==="horror")Horror.ensure();
+ HorUI.chatTarget=null;HorUI.closeDrawer();
+ $("overlay").classList.add("hidden");render();
+ say("旁白","你在栖木公司综合事业部报到。工位靠窗，第四张桌子空着。今天是第1天，距离季度考核还有10天。"+(mode==="fun"?"听说这栋楼的领导都养宝可梦。":mode==="horror"?"前台公示栏贴着一张《办公室守则》，好像比昨天多了几条。":"主管姓周，笑得很标准。"),[["开始打工",()=>{if(mode==="horror"){newDayStart()}else{say("旁白","09:00，打卡机滴的一声。你的社畜人生开始了。",[["开始行动",()=>render()]])}}]]);
+ saveGame();}
+window.Game={act,politics,startBattle,openRules,toiletFree,saveGame:(m)=>saveGame(m===1),moveTo:(k)=>moveTo(k),toggleTheme:toggleTheme};
+window.addEventListener("load",()=>{HorUI.init();setTheme(currentTheme());titleScreen();pingLLM()});
+</script>
+<script src="horror.js"></script>
+</body>
+</html>

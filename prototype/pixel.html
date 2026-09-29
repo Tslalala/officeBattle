@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>请于下班前离开 · 像素版</title>
+  <style>
+    :root{--bg:#111824;--panel:#1b2635;--line:#40516a;--text:#f0eadb;--muted:#a9b6c5;--gold:#f2c879;--red:#ef817c;--green:#9fd4bb}
+    *{box-sizing:border-box}body{margin:0;background:#10151d;color:var(--text);font-family:"Microsoft YaHei",system-ui,sans-serif;min-height:100vh;display:grid;place-items:center}button{font:inherit;cursor:pointer}
+    #game{width:min(1100px,100vw);height:min(750px,100dvh);min-height:610px;background:var(--bg);position:relative;overflow:hidden;border:1px solid #62718a;box-shadow:0 30px 90px #000a}
+    .top{height:50px;background:#111b29;border-bottom:2px solid #42566b;display:flex;align-items:center;justify-content:space-between;padding:0 23px;font-size:13px;letter-spacing:.12em;color:var(--muted)}.top b{color:var(--gold)}
+    .scene{height:calc(100% - 270px);min-height:340px;position:relative;overflow:hidden;background:linear-gradient(#344658 0 57%,#29313b 57% 100%)}.scene:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 116px,#ffffff08 117px 119px);pointer-events:none}.scene.late{background:linear-gradient(#1e2a3c 0 57%,#222632 57% 100%)}.scene.late:after{content:"";position:absolute;inset:0;background:#12203955;pointer-events:none}
+    .window{position:absolute;top:34px;left:8%;width:27%;height:34%;background:linear-gradient(155deg,#a5c3bd,#e8bd84 70%,#7b7e88 71%);border:11px solid #263545;box-shadow:0 0 0 3px #738497}.late .window{background:linear-gradient(160deg,#142a43,#693d58 65%,#101b2b 66%)}.window:after{content:"";position:absolute;top:0;bottom:0;left:50%;border-left:7px solid #263545}
+    .clock{position:absolute;top:42px;right:15%;width:58px;height:58px;border-radius:50%;background:#e6dec7;border:6px solid #263545;box-shadow:0 0 0 3px #82919b;color:#1b2b39;display:grid;place-items:center;font-size:10px;font-weight:bold;z-index:1}.clock:after{content:"";height:18px;width:3px;background:#1b2b39;position:absolute;top:8px;left:23px;transform-origin:bottom;transform:rotate(40deg)}
+    .board{position:absolute;right:5%;top:28%;width:24%;height:28%;background:#566879;border:8px solid #293545;display:grid;place-items:center;color:#e6e0cf;font-size:12px;line-height:1.8;text-align:center;z-index:1}.desk{position:absolute;bottom:10%;width:27%;height:20%;background:#8b715c;border-top:13px solid #b39473;box-shadow:0 8px 0 #433e3d;z-index:2}.desk:after{content:"";position:absolute;top:8px;left:25%;width:42%;height:26%;background:#273647;border:5px solid #1a2531;border-bottom-width:9px}.d1{left:9%}.d2{left:42%}.d3{right:3%}.person{position:absolute;bottom:25%;width:70px;height:115px;z-index:3;filter:drop-shadow(5px 8px 2px #0005)}.person:before{content:"";position:absolute;top:0;left:17px;width:36px;height:41px;background:var(--skin,#d4a484);border:5px solid var(--hair,#2c303b);border-radius:12px 12px 16px 16px}.person:after{content:"";position:absolute;bottom:0;left:7px;width:56px;height:67px;background:var(--shirt,#708fa1);clip-path:polygon(20% 0,80% 0,100% 100%,0 100%)}.p1{left:18%;--shirt:#7a9caa}.p2{left:51%;--shirt:#b38a79;--hair:#363046}.p3{right:12%;--shirt:#777d91;--hair:#50443c}.ghost{opacity:.12}.hidden{display:none!important}
+    .hotspots{position:absolute;inset:0;z-index:5;pointer-events:none}.hot{position:absolute;pointer-events:auto;border:1px solid #f2c87980;background:#1b2635d9;color:#fff0cf;border-radius:6px;padding:8px 12px;font-size:13px;box-shadow:0 3px 10px #0008}.hot:hover,.choice:hover{background:#735d4a;border-color:var(--gold)}.h1{left:15%;bottom:8%}.h2{left:48%;bottom:8%}.h3{right:8%;bottom:8%}.h4{right:6%;top:24%}
+    .status{height:35px;background:#162132;border-top:2px solid #40516a;color:var(--gold);font-size:12px;display:flex;align-items:center;padding:0 20px;letter-spacing:.08em}.dialogue{height:185px;background:#1b2635;padding:18px 26px;position:relative;border-top:1px solid #4c5c70}.speaker{font-size:14px;color:var(--gold);font-weight:700;letter-spacing:.15em;margin-bottom:8px}.text{font-size:18px;line-height:1.65;max-width:900px;white-space:pre-line}.options{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.choice{border:1px solid #78849a;background:#304052;color:var(--text);border-radius:4px;padding:8px 14px;font-size:14px}.hint{position:absolute;right:24px;bottom:14px;color:#8294a8;font-size:11px}.overlay{position:absolute;inset:0;z-index:20;background:#101824ef;display:flex;align-items:center;justify-content:center;padding:25px}.card{width:min(640px,100%);border:1px solid #b39a72;background:#1c2938;padding:32px;box-shadow:9px 9px 0 #0006}.eyebrow{color:var(--gold);font-size:12px;letter-spacing:.25em}.card h1{font-size:38px;line-height:1.2;margin:15px 0}.card p{line-height:1.85;color:#d2d6d5}.primary{background:var(--gold);border:0;color:#202b38;padding:11px 22px;font-weight:700;margin-top:12px}.primary:hover{background:#ffe1a0}.small{font-size:12px;color:#96a6b7}.battle{border-left:4px solid var(--red);padding-left:15px;margin:15px 0;color:#eac5bb}.meter{height:10px;background:#101925;border:1px solid #687786;margin:12px 0}.fill{height:100%;background:var(--red);transition:width .3s}.flash{animation:flash .6s 2}@keyframes flash{50%{filter:brightness(1.8)}}
+    /* Illustrated game assets */
+    .scene{background:#101a27 url(../assets/pixel/office-day.png') center center/cover no-repeat}
+    .scene.late{background:#101522 url(../assets/pixel/office-night.png') center center/cover no-repeat}
+    .scene:before{background:linear-gradient(90deg,#09121b40,transparent 35%,#08101830)}
+    .scene.late:after{background:#080c2060}
+    .window,.clock,.board,.desk{display:none}
+    .person{width:clamp(110px,16vw,180px);height:90%;bottom:-8%;background-image:url(../assets/pixel/characters.png');background-repeat:no-repeat;background-size:400% 100%;filter:drop-shadow(0 8px 12px #000b)}
+    .person:before,.person:after{display:none}
+    .p1{left:8%;background-position:0% 0}.p2{left:41%;background-position:66.666% 0}.p3{right:8%;background-position:33.333% 0}
+    .hot{backdrop-filter:blur(8px);background:#14263bdb;box-shadow:0 0 0 1px #151d29,0 5px 20px #000b}.hot:before{content:'◆';color:var(--gold);margin-right:7px;font-size:9px}.h1{left:9%;bottom:5%}.h2{left:42%;bottom:5%}.h3{right:8%;bottom:5%}.h4{right:5%;top:12%}
+    .dialogue{background:linear-gradient(145deg,#223249,#172434);border-top:3px solid #b99868;box-shadow:0 -12px 35px #03080e9c}.speaker{font-size:15px}.choice{background:#293e56;border-color:#9b8e7b;box-shadow:0 3px 0 #111b29}.choice:hover{transform:translateY(-2px)}
+    .status{background:linear-gradient(90deg,#24364b,#152234);border-top-color:#8197a1}.status:before{content:'';display:inline-block;width:25px;height:25px;background:url(../assets/pixel/clues.png') 0 0/400% 200% no-repeat;margin-right:10px;opacity:.9}
+    .overlay{background:linear-gradient(#091524b3,#0a1424ec),url(../assets/pixel/hallway-title.png') center/cover no-repeat}.card{background:#142234ef;border-color:#d4ab70;box-shadow:0 18px 60px #000c,9px 9px 0 #0007;backdrop-filter:blur(8px)}
+    @media(max-width:650px){#game{height:100dvh;min-height:550px;border:0}.scene{height:calc(100% - 320px)}.dialogue{height:235px;padding:14px}.text{font-size:15px}.top{padding:0 10px;font-size:10px}.person{height:74%;bottom:0;width:30%}.p1{left:0}.p2{left:35%}.p3{right:0}.hot{font-size:11px;padding:6px}.card{padding:20px}.card h1{font-size:28px}}
+    /* The pixel edition keeps the same story logic with a separate visual system. */
+    :root{--bg:#101524;--panel:#172339;--line:#62768a;--text:#f2ebd5;--muted:#9eacc1;--gold:#ffd478;--red:#e87777}
+    body{font-family:Consolas,"Microsoft YaHei",monospace;background:#080e17}
+    #game{border:4px solid #748096;box-shadow:0 0 0 4px #0b1320,12px 12px 0 #050810}
+    .scene,.overlay{image-rendering:pixelated}
+    .scene:before{background:repeating-linear-gradient(0deg,#07101b15 0 2px,transparent 2px 5px)}
+    .scene.late:after{background:#0a0c224d}
+    .person{image-rendering:pixelated;filter:drop-shadow(5px 5px 0 #080f1d9e)}
+    .top,.status,.dialogue{border-color:#8091a1}
+    .top{background:#111b2e;border-bottom:4px solid #6b7e91}
+    .status{background:#24364b;border-top:4px solid #6b7e91}
+    .dialogue{background:#17253a;border-top:4px solid #d7ad6b;box-shadow:inset 0 0 0 4px #0b1626}
+    .speaker{color:#ffd478;text-shadow:2px 2px 0 #684629}
+    .hot,.choice,.primary{border-radius:0;backdrop-filter:none;box-shadow:4px 4px 0 #091321;transition:none}
+    .hot{background:#102139ee;border:2px solid #d5b16e}
+    .hot:before{content:'▶';font-size:10px}
+    .choice{background:#23354c;border:2px solid #8ea2aa}
+    .choice:hover,.hot:hover{background:#86613e;transform:translate(2px,2px);box-shadow:2px 2px 0 #091321}
+    .primary{background:#ffd478;border:3px solid #fff0ae;padding:10px 20px}
+    .primary:hover{background:#ffe9ad}
+    .card{background:#17253af5;border:4px solid #d7ad6b;backdrop-filter:none;box-shadow:8px 8px 0 #080d17}
+    .overlay{background:linear-gradient(#081524a8,#081524ef),url(../assets/pixel/hallway-title.png') center/cover no-repeat}
+    .card h1{letter-spacing:.12em;text-shadow:3px 3px 0 #815b45}
+    #game.chibi .person{background-image:url(../assets/pixel/characters-chibi.png');height:78%;bottom:-2%;width:clamp(120px,18vw,190px)}
+    .style-switch{background:#24364b;color:#ffd478;border:2px solid #b99a68;padding:4px 8px;font:inherit;font-size:11px;white-space:nowrap;box-shadow:2px 2px 0 #080e17}
+    .style-switch:hover{background:#7d5b3b}
+    @media(max-width:650px){#game.chibi .person{height:67%;width:31%;bottom:1%}.top{gap:4px}.top span:first-child{display:none}.style-switch{font-size:10px;padding:4px}}
+  </style>
+</head>
+<body>
+<main id="game" class="chibi">
+  <header class="top"><span>栖木公司 · 综合事业部</span><span id="day">入职第一天</span><button class="style-switch" id="styleToggle" type="button">角色：Q版 ↔ 原比例</button><span>当前时间 <b id="time">17:42</b></span></header>
+  <section class="scene" id="scene"><div class="window"></div><div class="clock" id="clock">18:00</div><div class="board" id="board">今日事项<br>▢ 新人登记<br>▢ 下班前离开</div><div class="person p1" id="p1"></div><div class="person p2" id="p2"></div><div class="person p3" id="p3"></div><div class="desk d1"></div><div class="desk d2"></div><div class="desk d3"></div><div class="hotspots" id="hotspots"></div></section>
+  <div class="status" id="status">目标：认识同事，完成入职登记</div>
+  <section class="dialogue"><div class="speaker" id="speaker"></div><div class="text" id="text"></div><div class="options" id="options"></div><div class="hint" id="hint"></div></section>
+  <div class="overlay" id="overlay"><div class="card" id="modal"></div></div>
+</main>
+<script>
+(()=>{
+  const $=id=>document.getElementById(id);
+  $('styleToggle').onclick=()=>{$('game').classList.toggle('chibi');$('styleToggle').textContent=$('game').classList.contains('chibi')?'角色：Q版 ↔ 原比例':'角色：原比例 ↔ Q版'};
+  const state={phase:'intro',met:new Set(),trust:0,evidence:false,choice:'',pressure:3,turn:0};
+  const buttons=(items)=>{ $('options').innerHTML='';items.forEach(([label,fn])=>{let b=document.createElement('button');b.className='choice';b.textContent=label;b.onclick=fn;$('options').append(b)})};
+  const say=(speaker,text,items=[])=>{$('speaker').textContent=speaker;$('text').textContent=text;buttons(items);$('hint').textContent=items.length?'请选择':'点击场景中的人物或物品'};
+  const spots=(items)=>{$('hotspots').innerHTML='';items.forEach(([label,cls,fn])=>{let b=document.createElement('button');b.className='hot '+cls;b.textContent=label;b.onclick=fn;$('hotspots').append(b)})};
+  const modal=(html)=>{$('modal').innerHTML=html;$('overlay').classList.remove('hidden')};
+  const close=()=>$('overlay').classList.add('hidden');
+  const start=()=>{close();state.phase='explore';$('status').textContent='目标：认识同事，完成入职登记';say('旁白','你的新工位在靠窗的位置。离下班还有十八分钟。每个人都像在等什么。');explore()};
+  const explore=()=>{let a=[];if(!state.met.has('lin'))a.push(['林棠 · 同事','h1',lin]);if(!state.met.has('zhou'))a.push(['周主管','h3',zhou]);if(!state.met.has('desk'))a.push(['查看工位','h2',desk]);a.push(['公告栏','h4',board]);spots(a);if(state.met.size>=3){$('status').textContent='目标：决定如何处理抽屉里的便签';say('旁白','墙上的钟快指向六点。你的抽屉里，有一张不属于你的便签。',[['打开便签',note]])}};
+  const mark=x=>{state.met.add(x);explore()};
+  const lin=()=>{spots([]);say('林棠','“新来的？欢迎。这里有个规矩：听见下班铃，就马上走。”她说这句话时，没有看钟。',[['“为什么？”',()=>{state.trust++;say('林棠','“我解释过很多次了。”她顿了顿，“但第二天，他们总不记得。”',[['记住她的话',()=>mark('lin')]])}],['“你在吓我？”',()=>say('林棠','“希望是吧。”她低头，把一张折好的纸塞进你的抽屉。',[['看看其他地方',()=>mark('lin')]])]])};
+  const zhou=()=>{spots([]);say('周主管','“新人登记表在桌上。六点以前签完，系统才会保存你的名字。”他笑得十分标准。',[['“没签会怎样？”',()=>say('周主管','“手续会麻烦一点。”他看向空着的第四张工牌，“别拖到明天。”',[['知道了',()=>mark('zhou')]])],['“这里还有谁？”',()=>say('周主管','“你、我、林棠。一直都是三个人。”',[['知道了',()=>mark('zhou')]])]])};
+  const desk=()=>{spots([]);say('旁白','你的桌上放着一张登记表，姓名栏已经填好。抽屉却卡着一张手写便签：\n「如果我明天不在，替我记住——我叫陈序。」',[['把便签藏进口袋',()=>{state.evidence=true;mark('desk')}],['把便签留在抽屉',()=>{state.evidence=false;mark('desk')}]])};
+  const board=()=>{say('公告栏','本月值班名单上有四个名字。最后一个被反复涂黑，只剩一个模糊的“序”字。',[['返回',()=>explore()]])};
+  const note=()=>{spots([]);$('scene').classList.add('late');$('time').textContent='18:00';$('clock').textContent='18:00';$('status').textContent='下班铃响了。';$('scene').classList.add('flash');say('广播','叮——现在是下班时间。请于下班前离开。',[['转身离开',()=>confront('leave')],['留下，问清陈序的事',()=>confront('stay')]])};
+  const confront=choice=>{state.choice=choice;$('time').textContent='18:01';$('p1').classList.add('ghost');say('周主管',choice==='leave'?'“很好，理智的选择。”可林棠的工位突然空了。你记得她刚刚还在那里。':'“陈序？”主管的笑容第一次消失，“这个部门没有这个人。你手里的东西，交给我。”',[['继续',battleIntro]])};
+  const battleIntro=()=>{state.phase='battle';state.pressure=3;state.turn=0;$('status').textContent='对话冲突：保住你记得的事实';modal('<div class="eyebrow">对话冲突 · 第一幕</div><h1>你确定记得吗？</h1><p>主管会试着动摇你的记忆。选择一句回应，守住事实。<br>压力归零即可结束；你也可以妥协。</p><button class="primary" id="go">开始对话</button>');$('go').onclick=()=>{close();battle()}};
+  const battle=()=>{spots([]);$('speaker').textContent='周主管';let lines=['“你入职才第一天，怎么会认识陈序？”','“便签可以伪造。你还有别的证据吗？”','“为了一个可能不存在的人，你愿意留到明天？”'];$('text').textContent=lines[Math.min(state.turn,2)];$('hint').textContent='主管的压力：'+state.pressure+' / 3';let opts=[];
+    if(state.turn===0){opts.push(['指出值班名单上的“序”字',()=>resolve(true,'公告栏的涂改痕迹还在。主管没有立刻回答。')]);opts.push(['只说“我相信林棠”',()=>resolve(state.trust>0,'你记得林棠说过的话，但她现在不在这里。')])}
+    else if(state.turn===1){opts.push([state.evidence?'拿出陈序的便签':'提起抽屉里的便签',()=>resolve(state.evidence,'那行笔迹证明至少有人想让你记住他。')]);opts.push(['追问第四张工牌',()=>resolve(true,'主管下意识看向那张空工牌。')])}
+    else {opts.push(['“我会把这件事记到明天”',()=>resolve(true,'你把这个名字念了三遍。陈序。陈序。陈序。')]);opts.push(['答应不再追查',()=>ending('compromise')])}
+    opts.push(['妥协：交出线索',()=>ending('compromise')]);buttons(opts)};
+  const resolve=(success,reply)=>{if(success)state.pressure--;state.turn++;say('旁白',success?reply:'你想开口，却发现自己也无法确定细节。',[['继续',()=>state.pressure<=0||state.turn>=3?ending(state.pressure<=0?'remember':'uncertain'):battle()]])};
+  const ending=kind=>{state.phase='end';$('time').textContent='08:59';$('day').textContent='入职第二天';$('scene').classList.remove('late');$('p1').classList.add('ghost');let data={remember:['你还记得','第二天，林棠的工位空了。主管说这里一直只有两个人。你摸到口袋里的便签，背面多出一行字：\n「谢谢。今晚别相信我。」'],uncertain:['模糊的名字','你记得自己昨晚和主管争执过，却想不起争执的名字。抽屉里留着一张空白便签，上面有一道很深的笔痕。'],compromise:['一切正常','第二天，办公室安静得像什么都没发生过。你签完登记表，忽然发现自己不记得昨天那位女同事的名字。']}[kind];modal('<div class="eyebrow">试玩章节结束 · '+data[0]+'</div><h1>请于下班前离开</h1><p id="endingText"></p><p class="small">你经历的是约 5 分钟的剧情切片。不同的调查与回应会影响结尾。</p><button class="primary" id="again">重新试玩</button>');$('endingText').textContent=data[1];$('again').onclick=()=>location.reload()};
+  modal('<div class="eyebrow">办公室剧情游戏 · 像素版</div><h1>请于下班前离开</h1><p>入职第一天，你只有十八分钟认识同事、完成登记，并决定是否相信一张写着陌生名字的便签。</p><p class="small">玩法：点击人物和物品推进剧情；通过选择影响线索与结局。建议开声音脑补下班铃。</p><button class="primary" id="start">开始第一天 →</button>');$('start').onclick=start;
+})();
+</script>
+</body>
+</html>
+
+

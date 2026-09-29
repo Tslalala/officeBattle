@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>请于下班前离开 · 20 位像素人物</title>
+<style>
+:root{--bg:#0d1724;--panel:#1a2a3a;--line:#718797;--gold:#f5c773;--text:#f1e9d7}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Consolas,"Microsoft YaHei",monospace}header{padding:42px max(20px,5vw);border-bottom:4px solid #bd955d;background:linear-gradient(120deg,#0d1724,#243b4f)}.eyebrow{color:var(--gold);font-size:12px;letter-spacing:.2em}h1{font-size:clamp(28px,4vw,46px);margin:12px 0}header p{max-width:780px;line-height:1.8;color:#c8d4dc}a{color:var(--gold)}main{padding:28px max(20px,5vw) 70px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,350px),1fr));gap:18px}.card{background:var(--panel);border:2px solid var(--line);box-shadow:5px 5px 0 #080d15;overflow:hidden}.card a{display:block}.card img{width:100%;aspect-ratio:3/2;object-fit:contain;display:block;image-rendering:pixelated;background:repeating-conic-gradient(#26384b 0 25%,#172638 0 50%) 0/24px 24px}.info{padding:13px 15px}.info b{display:block;margin-bottom:6px}.info small{color:#acbeca;line-height:1.5}.note{margin-top:32px;padding:16px;border-left:4px solid var(--gold);background:#192939;line-height:1.7;color:#cbd6dd}
+</style></head><body>
+<header><div class="eyebrow">PIXEL ART · 20 CHARACTERS</div><h1>同一层楼的 20 张面孔</h1><p>每位角色一张六表情图。按左上到右下：平静、微笑、怀疑、担忧、愤怒、震惊。点击图片可查看原始 PNG。</p><p><a href="pixel.html">像素版试玩</a>　·　<a href="pixel-expansion-02.html">扩展包 02</a>　·　<a href="PIXEL_CHARACTERS_20.md">素材说明</a></p></header>
+<main><div class="grid" id="gallery"></div><div class="note">这些头像是美术方向稿；正式接入对白系统前，建议逐张检查表情并清理切片边界。</div></main>
+<script>
+const people=[
+['01-wu-guard.png','夜班保安老吴','监控室最后一位值班人'],
+['02-xu-reception.png','前台小许','记得每一张访客卡'],
+['03-liang-it.png','IT 工程师阿梁','知道哪些日志被改过'],
+['04-song-hr.png','人事主管宋姐','保管那份缺页档案'],
+['05-zhou-cleaner.png','保洁员周姨','总在楼层清空后出现'],
+['06-tang-intern.png','实习生小唐','第一次加班就遇上异常'],
+['07-shen-finance.png','财务专员沈宁','发现报销单上的陌生名字'],
+['08-ye-legal.png','法务顾问叶帆','熟悉那份保密协议'],
+['09-qin-electrician.png','维修电工秦工','检修过闪烁的灯'],
+['10-xiao-courier.png','快递员阿骁','送来无人签收的包裹'],
+['11-luo-cafeteria.png','食堂阿姨罗姐','记得谁没有去吃晚饭'],
+['12-zhao-dispatch.png','楼宇调度员赵音','听见过对讲机里的空白呼叫'],
+['13-gu-archivist.png','档案管理员顾伯','熟悉每一只旧档案盒'],
+['14-meng-secretary.png','会议秘书孟茜','会议纪要少了一页'],
+['15-han-data.png','数据分析师韩墨','发现时间戳无法解释'],
+['16-lu-property.png','物业经理陆成','掌握夜间门禁权限'],
+['17-he-sales.png','销售主管何川','坚持自己准时离开'],
+['18-jiang-programmer.png','夜班程序员姜雨','最后一次提交发生在六点后'],
+['19-tang-auditor.png','外部审计师唐静','带来一份不同版本的名单'],
+['20-bai-former.png','神秘前员工白榆','名字似乎被所有记录抹去']
+];
+document.querySelector('#gallery').innerHTML=people.map(([file,name,desc])=>{const src='assets/pixel/characters-20/'+file;return `<article class="card"><a href="${src}" target="_blank" rel="noopener"><img loading="lazy" src="${src}" alt="${name}的六种表情"></a><div class="info"><b>${name}</b><small>${desc}</small></div></article>`}).join('');
+</script></body></html>

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>请于下班前离开 · 天气与光照场景</title>
+<style>
+:root{--bg:#0c1624;--panel:#19283a;--text:#f2ebdc;--muted:#aabcc8;--gold:#f5c777}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Consolas,"Microsoft YaHei",monospace}header{padding:35px max(18px,5vw);border-bottom:4px solid #ab8c61;background:#172b40}h1{font-size:clamp(24px,4vw,42px);margin:9px 0 15px}.eyebrow{color:var(--gold);font-size:12px;letter-spacing:.18em}p{color:var(--muted);line-height:1.75}a{color:var(--gold)}main{padding:25px max(18px,5vw) 60px}.toolbar{display:flex;flex-wrap:wrap;gap:9px;margin:0 0 22px}.toolbar button,.controls button{font:inherit;color:var(--text);background:#25374b;border:2px solid #6c8493;padding:8px 13px;cursor:pointer;box-shadow:3px 3px 0 #07101c}.toolbar button.active,.controls button.active{color:#111b29;background:var(--gold);border-color:#ffe0a2}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,500px),1fr));gap:24px}.card{background:var(--panel);border:2px solid #61778b;box-shadow:6px 6px 0 #070d17;overflow:hidden}.card img{width:100%;aspect-ratio:1672/941;object-fit:cover;display:block;image-rendering:pixelated;background:#0a1623}.body{padding:14px 16px 18px}.body h2{font-size:19px;margin:0 0 7px}.body p{font-size:13px;margin:0 0 12px}.controls{display:flex;flex-wrap:wrap;gap:7px}.controls button{font-size:12px;padding:6px 10px}.caption{margin-top:11px;font-size:11px;color:#9cabb9}.note{border-left:4px solid var(--gold);background:#1b2b3a;padding:15px 18px;margin-top:30px;line-height:1.7;color:#cad6dd}
+</style></head><body>
+<header><div class="eyebrow">PIXEL ART · WEATHER & LIGHT STUDY</div><h1>同一地点，不同天气</h1><p>6 个地点 × 晴天、雨天、雪天，共 18 张新增图片。切换同一张卡片上的按钮，比较门窗、家具和镜头是否保持一致。五个扩展地点还保留原始暮色或夜景，主办公室保留夕阳与夜景。</p><p><a href="pixel.html">返回像素版试玩</a>　·　<a href="pixel-expansion.html">查看上一批扩展素材</a></p></header>
+<main><div class="toolbar" id="allControls"><button type="button" data-state="original">全部原版</button><button type="button" data-state="clear" class="active">全部晴天</button><button type="button" data-state="rain">全部雨天</button><button type="button" data-state="snow">全部雪天</button></div><div class="grid" id="grid"></div><div class="note">这些变体通过逐张编辑原场景生成，重点锁定构图和主要物件。细节仍可能有轻微漂移；正式做逐帧切换或场景动画前，建议按固定底图清理局部像素与碰撞区域。</div></main>
+<script>
+const scenes=[
+ {id:'office',name:'综合办公室',desc:'四张工位、公告板和大窗保持同一布局。',original:'assets/pixel/office-day.png'},
+ {id:'lobby',name:'公司大堂',desc:'接待台、闸机和地上的工牌都在原位。',original:'assets/pixel/expansion-01/lobby.png'},
+ {id:'elevator',name:'电梯间',desc:'三部电梯、时钟与消防柜固定。',original:'assets/pixel/expansion-01/elevator.png'},
+ {id:'manager-office',name:'主管办公室',desc:'桌椅、档案柜和百叶窗固定。',original:'assets/pixel/expansion-01/manager-office.png'},
+ {id:'stairwell',name:'消防楼梯',desc:'楼梯、扶手和安全门固定。',original:'assets/pixel/expansion-01/stairwell.png'},
+ {id:'rooftop',name:'天台',desc:'围栏、空调机组和那把椅子固定。',original:'assets/pixel/expansion-01/rooftop.png'}
+];
+const labels={original:'原版',clear:'晴天',rain:'雨天',snow:'雪天'};
+const weather=s=>`assets/pixel/weather-01/${s.id}-day-`;
+const path=(s,state)=>state==='original'?s.original:weather(s)+state+'.png';
+const grid=document.getElementById('grid');
+scenes.forEach((scene,i)=>{const card=document.createElement('article');card.className='card';card.innerHTML=`<a class="full" href="${path(scene,'clear')}" target="_blank"><img src="${path(scene,'clear')}" alt="${scene.name}晴天版"></a><div class="body"><h2>${scene.name}</h2><p>${scene.desc}</p><div class="controls"></div><div class="caption">晴天 · 点击图片查看原始 PNG</div></div>`;const controls=card.querySelector('.controls');Object.keys(labels).forEach(state=>{const b=document.createElement('button');b.type='button';b.textContent=labels[state];b.dataset.state=state;if(state==='clear')b.classList.add('active');b.onclick=()=>setCard(card,scene,state);controls.append(b)});grid.append(card)});
+function setCard(card,scene,state){let url=path(scene,state);card.querySelector('img').src=url;card.querySelector('img').alt=scene.name+labels[state]+'版';card.querySelector('.full').href=url;card.querySelector('.caption').textContent=labels[state]+' · 点击图片查看原始 PNG';card.querySelectorAll('.controls button').forEach(b=>b.classList.toggle('active',b.dataset.state===state))}
+document.querySelectorAll('#allControls button').forEach(b=>b.onclick=()=>{let state=b.dataset.state;document.querySelectorAll('#allControls button').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.card').forEach((card,i)=>setCard(card,scenes[i],state))});
+</script></body></html>
