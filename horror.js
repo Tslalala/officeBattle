@@ -175,12 +175,13 @@ const Horror=(()=>{
    review:["第十天的名单","第十天，新的入职名单贴在前台。你找遍上面每一行，都没看到自己的名字。抽屉里却多了一张给下一个人的便签。", "没有在第十天之前找齐线索并逃离"],
    quit:["离职申请","周主管收走了申请书。第二天，它又完整地出现在你的工位上。", "你放弃了调查"]
   }[kind]||["故事暂告一段落","走廊尽头仍有一盏灯。",""];
+  const o=$("opts");if(o)o.innerHTML="";
   const modal=$("modal");$("overlay").classList.remove("hidden");modal.className="card";modal.replaceChildren();
   const eyebrow=document.createElement("div");eyebrow.className="eyebrow";eyebrow.textContent="请于下班前离开 · "+data[2];
   const h=document.createElement("h1");h.textContent=data[0];const p=document.createElement("p");p.textContent=data[1];
   const stats=document.createElement("p");stats.className="small";stats.textContent="线索 "+S.horror.clues.length+"/5 · 理智 "+S.st.san+" · 违反守则 "+S.horror.violations+" 次";
-  const again=document.createElement("button");again.className="primary";again.textContent="重新开始";again.onclick=()=>{localStorage.removeItem("officeMyth");location.reload()};
-  modal.append(eyebrow,h,p,stats,again);localStorage.removeItem("officeMyth");
+  const again=document.createElement("button");again.className="primary";again.textContent="重新开始";again.onclick=()=>{try{localStorage.removeItem("officeMyth")}catch(e){}location.reload()};
+  modal.append(eyebrow,h,p,stats,again);try{localStorage.removeItem("officeMyth")}catch(e){}
  }
  return {ensure,renderActions,moveTo,investigate,event,evening,attemptEscape,newDayStart,npcContext,onNpcTalk,freeInput,resolveFree,endGame,showClues};
 })();

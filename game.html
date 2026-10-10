@@ -1345,6 +1345,7 @@ async function endGame(kind){
  if(S.ended)return;S.ended=true;
  HorUI.ambientOff();
  if(kind!=="quit"&&kind!=="review")kind="review";
+ $("opts").innerHTML="";
  const modal=$("modal");$("overlay").classList.remove("hidden");modal.className="card";
  let eyebrow,title,body,fx=null;
  if(kind==="quit"){eyebrow="提前离场";title="主动离职";body="你把工牌放在了前台。走出大楼时天很蓝。你以为解脱了，直到新公司的入职群里，你看见一个叫陈序的人向你打招呼。"}
