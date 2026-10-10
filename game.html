@@ -1039,7 +1039,7 @@ function render(){
    sf.classList.add("on");void sf.offsetWidth;sf.classList.remove("on");}
  sc.classList.toggle("night",S.slot>=5&&!isHorror());
  $("locbar").innerHTML="";
- const LOCIC={desk:"💻",pantry:"☕",meeting:"📊",boss:"🗄",roof:"🌤",wc:"🚻",lobby:"🏢"};
+ const LOCIC={desk:"💻",pantry:"☕",meeting:"📊",boss:"🗄",roof:"🌤",wc:"🚻",lobby:"🏢",security:"🛡",archive:"🗃",server:"🖥",stairs:"🪜",elevator:"🛗"};
  for(const k in LOCS){if(LOCS[k].horror&&!isHorror())continue;const b=document.createElement("button");b.className="loc"+(k===S.loc?" cur":"");b.innerHTML='<span class="li">'+(LOCIC[k]||"▣")+"</span>"+LOCS[k].name;b.onclick=()=>moveTo(k);$("locbar").append(b)}
  if(isHorror()){
   HorUI.ensureUI();
