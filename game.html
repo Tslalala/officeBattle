@@ -548,19 +548,25 @@ const ICONS={
  clock:'<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/>'};
 const ic=n=>'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[n]||"")+"</svg>";
 
-/* ============ 大模型接入 ============ */
-const UPSTREAM="http://10.133.72.161:20133/v1";
-const API_BASE=(location.protocol==="http:"||location.protocol==="https:")?location.origin+"/v1":UPSTREAM;
-const MODEL="Qwen3.8-27B-BF16", API_KEY="callmemaybe";
+/* ============ 大模型接入（小米 MiMo · Anthropic 格式，经 serve.py 反代） ============ */
+const MIMO_BASE=(location.protocol==="http:"||location.protocol==="https:")?location.origin+"/mimo":"https://api.xiaomimimo.com/anthropic";
+const MIMO_MODEL="mimo-v2.6-flash";
 let llmOK=null;
 async function llm(messages,{json=false,maxTokens=700,temp=0.9,timeout=45000}={}){
-  const body={model:MODEL,messages,temperature:temp,max_tokens:maxTokens,chat_template_kwargs:{enable_thinking:false}};
+  // Anthropic 格式：system 单独传，messages 只放 user/assistant
+  const sys=messages.filter(m=>m.role==="system").map(m=>m.content).join("\n");
+  const msgs=messages.filter(m=>m.role!=="system").map(m=>({role:m.role,content:m.content}));
+  const body={model:MIMO_MODEL,max_tokens:maxTokens,temperature:temp,thinking:{type:"disabled"},messages:msgs};
+  if(sys)body.system=sys;
   const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),timeout);
   try{
-    const r=await fetch(API_BASE+"/chat/completions",{method:"POST",signal:ctl.signal,
-      headers:{"Content-Type":"application/json","Authorization":"Bearer "+API_KEY},body:JSON.stringify(body)});
+    const r=await fetch(MIMO_BASE+"/v1/messages",{method:"POST",signal:ctl.signal,
+      headers:{"Content-Type":"application/json","anthropic-version":"2023-06-01"},body:JSON.stringify(body)});
     if(!r.ok)throw new Error("HTTP "+r.status);
-    const d=await r.json();const c=d.choices[0].message.content;setLLM(true);return c;
+    const d=await r.json();
+    const c=(d.content||[]).filter(p=>p.type==="text").map(p=>p.text).join("").trim();
+    if(!c)throw new Error("empty content");
+    setLLM(true);return c;
   }finally{clearTimeout(t)}
 }
 function setLLM(ok){llmOK=ok;const d=$("llmDot");if(d)d.className="dot "+(ok?"on":"off");const t=$("llmTxt");if(t)t.textContent=ok?"已连接":"离线";
@@ -903,7 +909,7 @@ const HorUI={
 
 /* ============ UI 基础 ============ */
 function toast(txt,color){const t=document.createElement("div");t.className="toast";t.style.borderColor=color||"#4d637f";t.textContent=txt;$("toasts").append(t);setTimeout(()=>t.remove(),2600)}
-function logIt(line){const p=document.createElement("p"),b=document.createElement("b");b.textContent=S.day+"天 "+timeStr()+" ";p.append(b,document.createTextNode(line));$("log").prepend(p);while($("log").children.length>60)$("log").lastChild.remove();S.dayLog.push(line);if(S.dayLog.length>20)S.dayLog.shift()}
+function logIt(line){if(!S)return;const p=document.createElement("p"),b=document.createElement("b");b.textContent=S.day+"天 "+timeStr()+" ";p.append(b,document.createTextNode(line));$("log").prepend(p);while($("log").children.length>60)$("log").lastChild.remove();S.dayLog.push(line);if(S.dayLog.length>20)S.dayLog.shift()}
 function say(sp,txt,opts=[],hint=""){$("speaker").textContent=sp;$("text").textContent=txt;
  const o=$("opts");o.innerHTML="";opts.forEach(l=>{const b=document.createElement("button");b.className="choice";if(l[2])b.innerHTML=l[0];else b.textContent=l[0];b.onclick=l[1];o.append(b)});
  $("hint").textContent=hint||"";
@@ -919,7 +925,7 @@ function applyFx(fx,silent){
  const map={mood:["心情","#5fce8f"],energy:["体力","#f2c879"],kpi:["绩效","#8ab6d6"],favor:["主管好感","#f2b56b"],danger:["危险度","#e06060"],san:["理智","#b9a0d6"],weird:["怪异度","#c96a9a"],qi:["斗志","#ff9d5c"]};
  for(const k in fx){if(!fx[k])continue;const key=k==="credit"?"kpi":k;
   if(key in S.st){S.st[key]=clamp(S.st[key]+fx[key],0,100);if(!silent)toast(map[key][0]+(fx[key]>0?"+":"")+fx[key],map[key][1])}
-  else if(key==="money"){S.money=Math.max(0,S.money+fx[key]);if(!silent)toast("存款"+(fx[key]>0?"+":"")+"¥"+fx[key],"#f2c879")}
+  else if(key==="money"){S.money=Math.max(0,S.money+fx[key]);if(!silent)toast("存款"+(fx[key]>0?"+¥":"-¥")+Math.abs(fx[key]),"#f2c879")}
   else if(key==="snacks"){S.snacks=Math.max(0,S.snacks+fx[key]);if(!silent)toast("零食×"+S.snacks,"#f2c879")}}
  for(const k in fx){const m=k.match(/^rel_(\w+)$/);if(m&&S.rel[m[1]]!=null){S.rel[m[1]]=clamp(S.rel[m[1]]+fx[k],0,100);if(!silent)toast(NPCS[m[1]].name+"关系"+(fx[k]>0?"+":"")+fx[k],"#8ab6d6")}}
  if(S.st.san<=0)return endGame("san0");if(S.st.weird>=100)return endGame("weird");
@@ -938,9 +944,9 @@ function render(){
  $("modeName").textContent=modeName();
  $("money").textContent="¥"+S.money.toLocaleString();
  const loc=LOCS[S.loc];const sc=$("scene");
- const sceneBg=(S.slot>=5?(loc.horrorBg||loc.night||loc.bg):loc.bg);
+ const sceneBg=(S.slot>=5?(isHorror()?(loc.horrorBg||loc.night||loc.bg):(loc.night||loc.bg)):loc.bg);
  sc.style.backgroundImage="url('"+sceneBg+"')";
- sc.classList.toggle("night",S.slot>=4&&!isHorror());
+ sc.classList.toggle("night",S.slot>=5&&!isHorror());
  $("locbar").innerHTML="";
  for(const k in LOCS){if(LOCS[k].horror&&!isHorror())continue;const b=document.createElement("button");b.className="loc"+(k===S.loc?" cur":"");b.textContent=LOCS[k].name;b.onclick=()=>moveTo(k);$("locbar").append(b)}
  if(isHorror()){
@@ -1089,7 +1095,8 @@ function openChat(nid){
  $("opts").innerHTML="";quick.forEach(([l,f])=>{const b=document.createElement("button");b.className="choice";b.textContent=l;b.onclick=f;$("opts").append(b)});
  HorUI.onSay(n.name+" · "+n.tag);}
 async function npcTurn(nid,userLine){
- const n=NPCS[nid];LLM_BUSY=true;
+ const n=NPCS[nid];
+ if(LLM_BUSY)return;LLM_BUSY=true;
  say(n.name,"……",[["（先不聊了）",()=>render()]],"对方正在想措辞…");
  const c=S.chat[nid]||(S.chat[nid]=[]);
  const sys="你正在职场文字游戏《职场神话》（"+modeName()+"）中扮演NPC「"+n.name+"」（"+n.tag+"）。人设："+n.style+"与主角当前关系："+S.rel[nid]+"/100。"
@@ -1106,7 +1113,9 @@ async function npcTurn(nid,userLine){
  c.push({role:"user",content:userLine},{role:"assistant",content:reply});if(c.length>10)c.splice(0,2);
  LLM_BUSY=false;
  S.rel[nid]=clamp(S.rel[nid]+ri(1,3),0,100);
- if(userLine.includes("动静")||userLine.includes("消息")){if(Math.random()<0.45){S.intel++;toast("获得情报×1","#f2c879")}}
+ // 聊天要花时间精力；情报不能无限刷（每天最多2条）
+ S.st.energy=clamp(S.st.energy-3,0,100);
+ if(userLine.includes("动静")||userLine.includes("消息")){if((S.flags.intelToday||0)<2&&Math.random()<0.45){S.intel++;S.flags.intelToday=(S.flags.intelToday||0)+1;toast("获得情报×1","#f2c879")}}
  render();
  chatMode(n.name,reply,nid);
  $("text").textContent+="\n\n（关系"+S.rel[nid]+"）";
@@ -1121,7 +1130,9 @@ async function politics(kind,tid){
  const lines=P.acts.map((a,i)=>[a[0],()=>doPolitics(kind,tid,i)]);
  say(P.title+" · 目标："+n.name+"（关系"+S.rel[tid]+"，情报×"+S.intel+"）","你想对"+n.name+"做什么？欺软怕硬是职场通行证，但也是双刃剑。",lines);
  async function doPolitics(kind,tid,i){
+  if(LLM_BUSY)return;
   const P=POLITICS[kind],a=P.acts[i],n=NPCS[tid];
+  if(a[0]==="请奶茶"&&S.money<20){say(P.title+" · 目标："+n.name,"你摸了摸口袋：存款不够一杯奶茶了。",[["算了",()=>advanceTime()]]);return}
   const power=S.st.kpi+S.intel*5+S.allies.length*8+S.st.favor/4;
   let base=40+(power-S.rel[tid]*0.3)/2;
   if(a[0]==="硬刚")base=20+S.st.kpi/4+(S.rel.zhou<40?20:0);
@@ -1170,7 +1181,7 @@ async function daySummary(){
  modal.className="card";modal.innerHTML="<div class='eyebrow'>第"+S.day+"天 · 结算</div><h1>"+(S.day>=10?"考核日到了":"夜深了")+"</h1><p>"+(line?esc(line):"这一天就这样过去了。办公室的灯熄了，故事还在继续。")+"</p><p class='small'>心情"+S.st.mood+" · 体力"+S.st.energy+" · 绩效"+S.st.kpi+" · 好感"+S.st.favor+" · 存款¥"+S.money+(isFun()?" · 斗志"+S.st.qi:"")+"</p><button class='primary' id='nextDayBtn'>"+(S.day>=10?"进入考核 →":"睡一觉，明天继续 →")+"</button>";
  $("nextDayBtn").onclick=()=>{$("overlay").classList.add("hidden");nextDay()};}
 function nextDay(){
- S.day++;S.slot=0;S.wcCount=0;S.snackToday=false;S.dayLog=[];
+ S.day++;S.slot=0;S.wcCount=0;S.snackToday=false;S.dayLog=[];S.flags.intelToday=0;
  if(S.day>10)return endGame("review");
  if(S.day===7){S.money+=S.salary;toast("发薪日！工资¥"+S.salary.toLocaleString(),"#f2c879");logIt("发薪日，到账¥"+S.salary)}
  newDayStart();}
@@ -1197,6 +1208,7 @@ async function endGame(kind){
  if(isHorror())return Horror.endGame(kind);
  if(S.ended)return;S.ended=true;
  HorUI.ambientOff();
+ if(kind!=="quit"&&kind!=="review")kind="review";
  const modal=$("modal");$("overlay").classList.remove("hidden");modal.className="card";
  let eyebrow,title,body,fx=null;
  if(kind==="quit"){eyebrow="提前离场";title="主动离职";body="你把工牌放在了前台。走出大楼时天很蓝。你以为解脱了，直到新公司的入职群里，你看见一个叫陈序的人向你打招呼。"}
@@ -1244,7 +1256,7 @@ function titleScreen(){
   +'<button class="mode hcard" data-m="horror"><span class="em">'+ic("flame")+'</span><span style="flex:1"><b>请于下班前离开</b><span class="tag">下班铃响过之后，这栋楼并不打算放你走。</span><span class="mdesc">七条守则 · 五份证据 · 一条真正的出口。查明陈序，然后在第二次广播响起前离开。</span></span></button>'
   +"</div>"
   +(okSave?"<button class='choice' id='cont'>"+ic("folder")+"继续上次进度（"+esc(MODES[save.mode].name)+" 第"+save.day+"天）</button> ":"")
-  +"<details class='help'><summary>连接与帮助</summary><div class='help-body'>后台大模型："+MODEL+"（<span id='titleLlm'>"+(llmOK===null?"检测中…":llmOK?"已连接":"离线（内置剧本，剧情照常进行）")+"</span>）。<br>若始终显示离线，请运行 <kbd>python serve.py</kbd> 后访问 <kbd>http://127.0.0.1:8787/game.html</kbd>。<br>进度自动保存在本机浏览器；即使完全离线，三个版本都可以完整通关。</div></details>";
+  +"<details class='help'><summary>连接与帮助</summary><div class='help-body'>后台大模型：小米 MiMo · "+MIMO_MODEL+"（<span id='titleLlm'>"+(llmOK===null?"检测中…":llmOK?"已连接":"离线（内置剧本，剧情照常进行）")+"</span>）。<br>若始终显示离线，请运行 <kbd>python serve.py</kbd> 后访问 <kbd>http://127.0.0.1:8787/game.html</kbd>。<br>进度自动保存在本机浏览器；即使完全离线，三个版本都可以完整通关。</div></details>";
  modal.querySelectorAll(".mode").forEach(b=>b.onclick=()=>{startGame(b.dataset.m)});
  if(okSave)$("cont").onclick=()=>{const base=newState(save.mode);S=Object.assign(base,save,{st:Object.assign(base.st,save.st),rel:Object.assign(base.rel,save.rel)});if(isHorror())Horror.ensure();HorUI.chatTarget=null;$("overlay").classList.add("hidden");
   if(S.slot>=SLOTS.length)return evening();
