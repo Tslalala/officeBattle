@@ -618,7 +618,7 @@ const MODES={
 };
 const SLOTS=["09:00","10:30","12:00 午休","13:30","15:00","16:30"];
 const LOCS={
- desk:{name:"工位",bg:"assets/pixel/office-day.png",night:"assets/pixel/office-night.png"},
+ desk:{name:"工位",bg:"assets/pixel/weather-01/office-day-clear.png",night:"assets/pixel/office-night.png"},
  pantry:{name:"茶水间",bg:"assets/pixel/break-room.png"},
  meeting:{name:"会议室",bg:"assets/pixel/meeting-room.png",horrorBg:"assets/pixel/meeting-room-night.png"},
  boss:{name:"主管办公室",bg:"assets/pixel/expansion-01/manager-office.png"},
@@ -633,13 +633,15 @@ const LOCS={
 };
 const NPCS={
  zhou:{name:"周主管",tag:"你的上司",img:"c",idx:1,locs:["boss"],style:"官腔笑面虎，欺软怕硬，酷爱PPT和汇报，画饼大师。对强者退让，对弱者施压。"},
- lin:{name:"林棠",tag:"资深同事",img:"c",idx:0,locs:["desk","meeting","roof"],style:"冷静通透，业务强，看破不说破，关键时刻会提点你，也可能是最强对手。"},
- wu:{name:"小吴",tag:"实习生",img:"c",idx:2,locs:["desk","pantry"],style:"怯生生的应届生，干活麻利，容易被使唤，心里憋着一股劲。"},
+ lin:{name:"林棠",tag:"资深同事",img:"c",idx:0,locs:["desk","meeting"],style:"冷静通透，业务强，看破不说破，关键时刻会提点你，也可能是最强对手。"},
+ wu:{name:"小吴",tag:"实习生",img:"c",idx:2,locs:["desk"],style:"怯生生的应届生，干活麻利，容易被使唤，心里憋着一股劲。"},
  he:{name:"何姐",tag:"HR",img:"n",idx:2,locs:["pantry","lobby"],style:"笑里藏刀，消息灵通，掌握裁员名单和八卦，话里总有话。"},
  wei:{name:"阿伟",tag:"IT运维",img:"n",idx:1,locs:["desk","pantry","wc"],style:"赛博道士，嘴里全是'重启试试'，能帮你删监控记录（收费）。"},
  hong:{name:"前台小虹",tag:"门面担当",img:"n",idx:0,locs:["lobby"],style:"元气满满，全公司情报集散地，快递和八卦一样多。"},
  zhao:{name:"老赵",tag:"夜班保安",img:"n",idx:3,locs:["lobby"],style:"沉默寡言，见多识广，总在深夜出现在不该出现的地方。"},
  chen:{name:"陈序",tag:"？？？",img:"c",idx:3,locs:["desk","wc","roof","pantry"],style:"透明人，说话轻，似有似无，说的话总在应验。"},
+ mai:{name:"罗阿姨",tag:"食堂阿姨",img:"assets/pixel/npc-mai.png",idx:0,locs:["pantry"],style:"掌管食堂和茶水间，全公司的活体档案。一包辣条、一杯奶茶，就能套出任何消息。"},
+ song:{name:"老宋",tag:"天台老员工",img:"assets/pixel/npc-song.png",idx:0,locs:["roof"],style:"十年老员工，半生泡在天台。说话绕弯子，见过这栋楼里所有人——来的，和走的。"},
 };
 const FALLBACK={
  serious:[
@@ -812,8 +814,9 @@ const HorUI={
    d.style.backgroundPosition=((e%3)*50)+"% "+(Math.floor(e/3)*100)+"%";
   }else{
    d.classList.add("chibi");
-   d.style.backgroundImage="url('"+(n.img==="c"?"assets/pixel/characters-chibi.png":"assets/pixel/expansion-01/npc-chibi.png")+"')";
-   d.style.backgroundPositionX=(n.idx*33.333)+"%";}
+   const asrc=typeof n.img==="string"&&n.img.indexOf("assets")===0?n.img:(n.img==="c"?"assets/pixel/characters-chibi.png":"assets/pixel/expansion-01/npc-chibi.png");
+   d.style.backgroundImage="url('"+asrc+"')";
+   if(asrc===n.img)d.style.backgroundSize="100% 100%";else d.style.backgroundPositionX=(n.idx*33.333)+"%";}
   av.append(d);},
  onSay(sp){
   if(!S)return;
@@ -1039,8 +1042,10 @@ function render(){
   if(k==="hong")return S.loc==="lobby";return true});
  present.forEach((k,i)=>{const n=NPCS[k];const b=document.createElement("button");b.className="npc";
   b.dataset.name=n.name;
-  b.style.left=(4+i*24)+"%";b.style.backgroundImage="url('"+(n.img==="c"?"assets/pixel/characters-chibi.png":"assets/pixel/expansion-01/npc-chibi.png")+"')";
-  b.style.backgroundPosition=(n.idx*33.333)+"% 0";b.title=n.name+" · "+n.tag+(isHorror()&&k==="chen"?"（半透明）":"");
+  const nsrc=typeof n.img==="string"&&n.img.indexOf("assets")===0?n.img:(n.img==="c"?"assets/pixel/characters-chibi.png":"assets/pixel/expansion-01/npc-chibi.png");
+   b.style.left=(4+i*24)+"%";b.style.backgroundImage="url('"+nsrc+"')";
+  if(nsrc===n.img)b.style.backgroundSize="100% 100%";else b.style.backgroundPosition=(n.idx*33.333)+"% 0";
+   b.title=n.name+" · "+n.tag+(isHorror()&&k==="chen"?"（半透明）":"");
   b.setAttribute("aria-label",n.name);
   if(isHorror()&&k==="chen")b.style.opacity=.35;b.onclick=()=>openChat(k);$("scene").append(b)});
  const bars=[["mood","心情"],["energy","体力"],["kpi","绩效"],["favor","好感"],["danger","危险"]];
@@ -1163,7 +1168,7 @@ async function act(id){
 /* ============ 随机事件（认真/娱乐版，大模型生成） ============ */
  function stateSummary(){
  return "第"+S.day+"天"+timeStr()+"，地点："+LOCS[S.loc].name+"。心情"+S.st.mood+"/100，体力"+S.st.energy+"，绩效"+S.st.kpi+"，主管好感"+S.st.favor+"，危险度"+S.st.danger+(isFun()?"，斗志"+S.st.qi:"")+(isHorror()?"，理智"+S.st.san+"，怪异度"+S.st.weird:"")+"。存款¥"+S.money+"，零食×"+S.snacks+"，情报×"+S.intel+"。";}
-const NPC_ROSTER=()=>"NPC名单（只用这些名字）：周主管（上司）、林棠（资深同事）、小吴（实习生）、何姐（HR）、阿伟（IT）、前台小虹、保安老赵"+(isHorror()?"、陈序（神秘前员工）":"")+"。";
+const NPC_ROSTER=()=>"NPC名单（只用这些名字）：周主管（上司）、林棠（资深同事）、小吴（实习生）、何姐（HR）、阿伟（IT）、前台小虹、保安老赵、罗阿姨（食堂）、老宋（天台老员工）"+(isHorror()?"、陈序（神秘前员工）":"")+"。";
  async function genEvent(){
  const sys="你是职场文字游戏《职场神话》的主持人（GM）。当前模式："+modeName()+"。风格要求："+MODES[S.mode].sys
   +"\n"+NPC_ROSTER()
