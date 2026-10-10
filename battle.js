@@ -291,7 +291,7 @@ function hpColor(p){return p>.5?"#5fce8f":p>.25?"#f2c879":"#e06060"}
 function spriteCanvas(key,scale){
  const cv=document.createElement("canvas");
  cv.width=16*scale;cv.height=16*scale;
- const p=POKES[key];const g=cv.getContext("2d");
+ const p=POKES[key];const g=cv.getContext("2d");if(!g)return cv
  p.art.spr.forEach((row,y)=>{
   if(row.length!==16&&typeof console!=="undefined")console.warn("[battle] 精灵行宽错误 "+key+" 第"+(y+1)+"行: "+row.length);
   for(let x=0;x<16;x++){const c=row[x];if(!c||c===".")continue;
@@ -393,7 +393,7 @@ Battle.bindCmd=function(){
  if(b.mode==="end")return;
  if(b.mode==="release"){
   b.party.forEach((f,i)=>{const e=document.querySelector('[data-rel="'+i+'"]');if(e)e.onclick=async()=>{Snd.play("click");await releaseAndCapture(i)}});
-  on("b2skipcap",async()=>{Snd.play("click");bLog("你把手里的球收回了口袋。");await enemyTurn()});
+  on("b2skipcap",async()=>{Snd.play("click");bLog("你把手里的球收回了口袋。");b.mode="cmd";await enemyTurn();await finishRound()});
   return}
  if(b.mode==="switch"){
   document.querySelectorAll("[data-swp]").forEach(e=>{e.onclick=async()=>{Snd.play("click");await doSwitch(parseInt(e.dataset.swp))}});
@@ -682,7 +682,7 @@ async function doPlayerMove(mvId){
   if(!b.over)await enemyTurn();
  }else{
   await enemyTurn();
-  if(!b.over)await doMove(b.me,b.foe,mvId);
+  if(!b.over&&b.mode!=="switch")await doMove(b.me,b.foe,mvId);
  }
  await finishRound();
 }
@@ -696,7 +696,7 @@ async function finishRound(){
  }
  b.turn++;
  b.busy=false;
- if(!b.over)b.mode="wait";
+ if(!b.over&&b.mode!=="switch")b.mode="wait";
  bRender();
 }
 async function doSwitch(idx,fromPanel){
@@ -846,7 +846,7 @@ async function victory(){
   S.poke.wins=(S.poke.wins||0)+1;
   levelUp(b.me,1);
   b.endTitle="胜利！";
-  b.endTxt="你赢了野生的"+p.name+"。"+drop?"掉落："+drop+"。":"";
+  b.endTxt="你赢了野生的"+p.name+"。"+(drop?"掉落："+drop+"。":"");
   syncPartyToSave();saveGame();
   endBattle("win",{mood:4,qi:4});
   return;
@@ -946,7 +946,7 @@ Battle.openDex=function(){
   +'<div class="dex-dept">部门 · '+(TYPE_DEPT[p.t1]||"综合部")+(p.t2!==p.t1&&TYPE_DEPT[p.t2]?" / "+TYPE_DEPT[p.t2]:"")+'</div>'
     +'<div class="b2-hp"><i style="width:'+(clamp(c.hp,0,st.hp)/st.hp*100).toFixed(1)+'%;background:'+hpColor(c.hp/st.hp)+'"></i></div>'
     +'<div class="dex-stats">HP '+c.hp+"/"+st.hp+' · 攻'+st.atk+' · 防'+st.def+' · 速'+st.spd+"</div>"
-    +'<div class="dex-moves">'+p.moves.map(id=>MOVES[id].n).join(" / ")+"</div>"
+    +'<div class="dex-moves">'+(p.boss?p.m1:p.moves).map(id=>MOVES[id].n).join(" / ")+"</div>"
     +'<div class="dex-tmbtns">'
     +(i===0?'<span class="b2-lv">★ 队长</span>':'<button class="mini" data-lead="'+i+'">设为队长</button>')
     +(pk.party.length>1?'<button class="mini warn" data-free="'+i+'">释放</button>':'')
@@ -974,7 +974,7 @@ Battle.openDex=function(){
   /* 画精灵 */
   modal.querySelectorAll("[data-dexart]").forEach(d=>{
    const k=d.getAttribute("data-dexart");
-   d.innerHTML="";d.append(spriteCanvas(k,parseInt(d.getAttribute("data-dim")||"0")==="1"?4:5));
+   d.innerHTML="";d.append(spriteCanvas(k,parseInt(d.getAttribute("data-dim")||"0")===1?4:5));
    if(d.getAttribute("data-dim")==="1")d.firstChild.style.filter="brightness(0)",d.firstChild.style.opacity=".3";
   });
   modal.querySelectorAll("[data-dtab]").forEach(e=>e.onclick=()=>{tab=e.getAttribute("data-dtab");draw()});

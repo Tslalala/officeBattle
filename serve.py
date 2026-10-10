@@ -76,7 +76,11 @@ class Handler(SimpleHTTPRequestHandler):
 
     def proxy_mimo(self):
         # 反代小米 MiMo（Anthropic 格式）：/mimo/v1/messages -> MIMO_UPSTREAM/v1/messages
-        length = int(self.headers.get("Content-Length", 0))
+        try:
+            length = int(self.headers.get("Content-Length", 0) or 0)
+        except ValueError:
+            self.send_error(400, "invalid Content-Length")
+            return
         if length <= 0 or length > 1024 * 1024:
             self.send_error(413, "invalid request size")
             return
@@ -113,5 +117,5 @@ class Handler(SimpleHTTPRequestHandler):
 
 if __name__ == "__main__":
     print(f"职场神话服务器已启动: http://127.0.0.1:{PORT}/game.html")
-    print(f"大模型反代: {UPSTREAM}/v1/chat/completions")
+    print(f"大模型反代: {MIMO_UPSTREAM}/v1/messages（密钥: 环境变量 MIMO_API_KEY 或 mimo_key.txt）")
     ThreadingHTTPServer(("127.0.0.1", PORT), Handler).serve_forever()
