@@ -124,8 +124,8 @@ const Horror=(()=>{
  function freeInput(){
   ensure();say("你的行动","你可以写下自己想说的话或想做的事。大模型会理解你的意图；实际线索仍要通过调查获得。",[["返回",()=>render()]],"例如：我去监控室核对录像");
   const row=$("chatrow"),input=$("chatIn");row.classList.remove("hidden");row.classList.add("on");input.value="";input.placeholder="写下你要说或做的事…";input.focus();
-  const send=()=>{const v=input.value.trim();if(!v||LLM_BUSY)return;row.classList.add("hidden");row.classList.remove("on");resolveFree(v)};
-  $("chatSend").onclick=send;input.onkeydown=e=>{if(e.key==="Enter")send()};
+  /* 发送统一走 HorUI.send（init 中绑定）：有对话对象时回复 NPC，否则按自由行动解析；不在此覆盖 handler，避免 NPC 对话失效 */
+  
  }
  function localIntent(v){
   if(/去|前往|走到|进入|回到/.test(v)&&Object.values(LOCS).some(loc=>v.includes(loc.name)))return "move";
@@ -156,7 +156,7 @@ const Horror=(()=>{
   }
   if(intent==="inspect")return investigate();
   if(intent==="talk"){
-   const target=Object.keys(NPCS).find(k=>v.includes(NPCS[k].name)||v.includes(k==="zhao"?"老赵":k==="wei"?"阿伟":k==="chen"?"陈序":"◇"));
+   const target=Object.keys(NPCS).find(k=>v.includes(NPCS[k].name)||v.includes(k==="zhao"?"老赵":k==="wei"?"阿伟":k==="chen"?"陈序":k==="hong"?"小虹":"◇"));
    if(target)return npcTurn(target,v);
    return say("旁白",intro+"你想找人谈谈。先走到对方所在地点，点击人物，或写出对方的名字。",[["返回",freeInput]]);
   }

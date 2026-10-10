@@ -15,7 +15,10 @@ import urllib.request
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8787
+try:
+    PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8787
+except ValueError:
+    sys.exit("用法: python serve.py [端口号]")
 UPSTREAM = "http://10.133.72.161:20133"
 ROOT = Path(__file__).parent
 
@@ -28,7 +31,11 @@ class Handler(SimpleHTTPRequestHandler):
         if self.path != "/v1/chat/completions":
             self.send_error(404)
             return
-        length = int(self.headers.get("Content-Length", 0))
+        try:
+            length = int(self.headers.get("Content-Length", 0) or 0)
+        except ValueError:
+            self.send_error(400, "invalid Content-Length")
+            return
         if length <= 0 or length > 1024 * 1024:
             self.send_error(413, "invalid request size")
             return

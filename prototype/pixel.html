@@ -16,18 +16,18 @@
     .hotspots{position:absolute;inset:0;z-index:5;pointer-events:none}.hot{position:absolute;pointer-events:auto;border:1px solid #f2c87980;background:#1b2635d9;color:#fff0cf;border-radius:6px;padding:8px 12px;font-size:13px;box-shadow:0 3px 10px #0008}.hot:hover,.choice:hover{background:#735d4a;border-color:var(--gold)}.h1{left:15%;bottom:8%}.h2{left:48%;bottom:8%}.h3{right:8%;bottom:8%}.h4{right:6%;top:24%}
     .status{height:35px;background:#162132;border-top:2px solid #40516a;color:var(--gold);font-size:12px;display:flex;align-items:center;padding:0 20px;letter-spacing:.08em}.dialogue{height:185px;background:#1b2635;padding:18px 26px;position:relative;border-top:1px solid #4c5c70}.speaker{font-size:14px;color:var(--gold);font-weight:700;letter-spacing:.15em;margin-bottom:8px}.text{font-size:18px;line-height:1.65;max-width:900px;white-space:pre-line}.options{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.choice{border:1px solid #78849a;background:#304052;color:var(--text);border-radius:4px;padding:8px 14px;font-size:14px}.hint{position:absolute;right:24px;bottom:14px;color:#8294a8;font-size:11px}.overlay{position:absolute;inset:0;z-index:20;background:#101824ef;display:flex;align-items:center;justify-content:center;padding:25px}.card{width:min(640px,100%);border:1px solid #b39a72;background:#1c2938;padding:32px;box-shadow:9px 9px 0 #0006}.eyebrow{color:var(--gold);font-size:12px;letter-spacing:.25em}.card h1{font-size:38px;line-height:1.2;margin:15px 0}.card p{line-height:1.85;color:#d2d6d5}.primary{background:var(--gold);border:0;color:#202b38;padding:11px 22px;font-weight:700;margin-top:12px}.primary:hover{background:#ffe1a0}.small{font-size:12px;color:#96a6b7}.battle{border-left:4px solid var(--red);padding-left:15px;margin:15px 0;color:#eac5bb}.meter{height:10px;background:#101925;border:1px solid #687786;margin:12px 0}.fill{height:100%;background:var(--red);transition:width .3s}.flash{animation:flash .6s 2}@keyframes flash{50%{filter:brightness(1.8)}}
     /* Illustrated game assets */
-    .scene{background:#101a27 url(../assets/pixel/office-day.png') center center/cover no-repeat}
-    .scene.late{background:#101522 url(../assets/pixel/office-night.png') center center/cover no-repeat}
+    .scene{background:#101a27 url('../assets/pixel/office-day.png') center center/cover no-repeat}
+    .scene.late{background:#101522 url('../assets/pixel/office-night.png') center center/cover no-repeat}
     .scene:before{background:linear-gradient(90deg,#09121b40,transparent 35%,#08101830)}
     .scene.late:after{background:#080c2060}
     .window,.clock,.board,.desk{display:none}
-    .person{width:clamp(110px,16vw,180px);height:90%;bottom:-8%;background-image:url(../assets/pixel/characters.png');background-repeat:no-repeat;background-size:400% 100%;filter:drop-shadow(0 8px 12px #000b)}
+    .person{width:clamp(110px,16vw,180px);height:90%;bottom:-8%;background-image:url('../assets/pixel/characters.png');background-repeat:no-repeat;background-size:400% 100%;filter:drop-shadow(0 8px 12px #000b)}
     .person:before,.person:after{display:none}
     .p1{left:8%;background-position:0% 0}.p2{left:41%;background-position:66.666% 0}.p3{right:8%;background-position:33.333% 0}
     .hot{backdrop-filter:blur(8px);background:#14263bdb;box-shadow:0 0 0 1px #151d29,0 5px 20px #000b}.hot:before{content:'◆';color:var(--gold);margin-right:7px;font-size:9px}.h1{left:9%;bottom:5%}.h2{left:42%;bottom:5%}.h3{right:8%;bottom:5%}.h4{right:5%;top:12%}
     .dialogue{background:linear-gradient(145deg,#223249,#172434);border-top:3px solid #b99868;box-shadow:0 -12px 35px #03080e9c}.speaker{font-size:15px}.choice{background:#293e56;border-color:#9b8e7b;box-shadow:0 3px 0 #111b29}.choice:hover{transform:translateY(-2px)}
-    .status{background:linear-gradient(90deg,#24364b,#152234);border-top-color:#8197a1}.status:before{content:'';display:inline-block;width:25px;height:25px;background:url(../assets/pixel/clues.png') 0 0/400% 200% no-repeat;margin-right:10px;opacity:.9}
-    .overlay{background:linear-gradient(#091524b3,#0a1424ec),url(../assets/pixel/hallway-title.png') center/cover no-repeat}.card{background:#142234ef;border-color:#d4ab70;box-shadow:0 18px 60px #000c,9px 9px 0 #0007;backdrop-filter:blur(8px)}
+    .status{background:linear-gradient(90deg,#24364b,#152234);border-top-color:#8197a1}.status:before{content:'';display:inline-block;width:25px;height:25px;background:url('../assets/pixel/clues.png') 0 0/400% 200% no-repeat;margin-right:10px;opacity:.9}
+    .overlay{background:linear-gradient(#091524b3,#0a1424ec),url('../assets/pixel/hallway-title.png') center/cover no-repeat}.card{background:#142234ef;border-color:#d4ab70;box-shadow:0 18px 60px #000c,9px 9px 0 #0007;backdrop-filter:blur(8px)}
     @media(max-width:650px){#game{height:100dvh;min-height:550px;border:0}.scene{height:calc(100% - 320px)}.dialogue{height:235px;padding:14px}.text{font-size:15px}.top{padding:0 10px;font-size:10px}.person{height:74%;bottom:0;width:30%}.p1{left:0}.p2{left:35%}.p3{right:0}.hot{font-size:11px;padding:6px}.card{padding:20px}.card h1{font-size:28px}}
     /* The pixel edition keeps the same story logic with a separate visual system. */
     :root{--bg:#101524;--panel:#172339;--line:#62768a;--text:#f2ebd5;--muted:#9eacc1;--gold:#ffd478;--red:#e87777}
@@ -50,9 +50,9 @@
     .primary{background:#ffd478;border:3px solid #fff0ae;padding:10px 20px}
     .primary:hover{background:#ffe9ad}
     .card{background:#17253af5;border:4px solid #d7ad6b;backdrop-filter:none;box-shadow:8px 8px 0 #080d17}
-    .overlay{background:linear-gradient(#081524a8,#081524ef),url(../assets/pixel/hallway-title.png') center/cover no-repeat}
+    .overlay{background:linear-gradient(#081524a8,#081524ef),url('../assets/pixel/hallway-title.png') center/cover no-repeat}
     .card h1{letter-spacing:.12em;text-shadow:3px 3px 0 #815b45}
-    #game.chibi .person{background-image:url(../assets/pixel/characters-chibi.png');height:78%;bottom:-2%;width:clamp(120px,18vw,190px)}
+    #game.chibi .person{background-image:url('../assets/pixel/characters-chibi.png');height:78%;bottom:-2%;width:clamp(120px,18vw,190px)}
     .style-switch{background:#24364b;color:#ffd478;border:2px solid #b99a68;padding:4px 8px;font:inherit;font-size:11px;white-space:nowrap;box-shadow:2px 2px 0 #080e17}
     .style-switch:hover{background:#7d5b3b}
     @media(max-width:650px){#game.chibi .person{height:67%;width:31%;bottom:1%}.top{gap:4px}.top span:first-child{display:none}.style-switch{font-size:10px;padding:4px}}
