@@ -59,38 +59,44 @@ const Sfx={
   }catch(e){}
  },
  /* ---------- 办公室环境音 + 音乐盒 ---------- */
- /* 旋律：C 大调五声音阶慢板，420ms/拍，16 拍一循环（0=休止） */
- MELODY:[523.25,0,659.25,0,783.99,0,659.25,523.25,0,587.33,0,698.46,0,880,0,783.99],
+ /* 旋律：C 大调轻快循环，300ms/步，16 步一循环（0=休止）——明快解压 */
+ MELODY:[523.25,659.25,783.99,659.25,523.25,587.33,659.25,0,698.46,659.25,587.33,523.25,587.33,659.25,587.33,523.25],
+ BASS:[130.81,0,174.61,0,130.81,0,196.00,0,174.61,0,130.81,0,146.83,0,196.00,0],
  startAmb(){
   if(!this.amb||this._ambT)return;
   this.init();if(!this.ctx)return;
   try{
    if(this.ctx.state==="suspended")this.ctx.resume().catch(()=>{});
    const ctx=this.ctx,nodes=[];
-   /* 房间底噪：低通棕色噪声，极低音量 */
+   /* 房间底噪：极轻白昼噪（低通，像窗外的白天气流） */
    const nb=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);
-   const nc=nb.getChannelData(0);let last=0;
-   for(let i=0;i<nc.length;i++){last=(last+(Math.random()*2-1)*.02);nc[i]=last*.5}
+   const nc=nb.getChannelData(0);
+   for(let i=0;i<nc.length;i++)nc[i]=(Math.random()*2-1)*.4;
    const ns=ctx.createBufferSource();ns.buffer=nb;ns.loop=true;
-   const nf=ctx.createBiquadFilter();nf.type="lowpass";nf.frequency.value=420;
-   const ng=ctx.createGain();ng.gain.value=.014;
+   const nf=ctx.createBiquadFilter();nf.type="lowpass";nf.frequency.value=700;
+   const ng=ctx.createGain();ng.gain.value=.006;
    ns.connect(nf);nf.connect(ng);ng.connect(ctx.destination);ns.start();
    nodes.push(ns,ng);
-   /* 日光灯哼鸣 */
-   const hum=ctx.createOscillator(),hg=ctx.createGain();
-   hum.type="sine";hum.frequency.value=100;hg.gain.value=.004;
-   hum.connect(hg);hg.connect(ctx.destination);hum.start();
-   nodes.push(hum,hg);
+   /* 温暖底和弦：C3/E3/G3 正弦，极轻 */
+   [130.81,164.81,196.00].forEach(f=>{
+    const o=ctx.createOscillator(),og=ctx.createGain();
+    o.type="sine";o.frequency.value=f;og.gain.value=.007;
+    o.connect(og);og.connect(ctx.destination);o.start();
+    nodes.push(o,og);
+   });
    /* 音乐盒 + 随机键盘敲击 */
    this._step=0;
    this._ambT=setInterval(()=>{
     try{
      if(this.ctx.state!=="running")return;
-     const f=this.MELODY[this._step%16];this._step++;
-     if(f){this.tone(f,.5,"sine",.038);this.tone(f*2,.3,"sine",.012,.02)}
-     if(Math.random()<.16)this.noise(.05,.013+Math.random()*.01,.01,.8+Math.random()*.5);
+     const i=this._step%16;this._step++;
+     const f=this.MELODY[i];
+     if(f){this.tone(f,.32,"triangle",.042);this.tone(f*2,.22,"sine",.012,.02)}
+     const bf=this.BASS[i];
+     if(bf)this.tone(bf,.5,"sine",.05);
+     if(Math.random()<.1)this.noise(.04,.01,.01,.9+Math.random()*.4);
     }catch(e){}
-   },420);
+   },300);
    this._ambNodes=nodes;
   }catch(e){this._ambT=null;this._ambNodes=null}
  },

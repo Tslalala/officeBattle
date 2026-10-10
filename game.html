@@ -95,7 +95,7 @@ html.light .scene{background-color:#d8cba8;filter:sepia(.22) saturate(.85)}
 .scene.night{filter:brightness(.6) saturate(.85)}
 /* ============ 浮沉记打磨：动画 ============ */
 .scene-bg{position:absolute;inset:0;background:center/cover no-repeat;image-rendering:pixelated;z-index:0;animation:kb 46s ease-in-out infinite alternate}
-@keyframes kb{from{transform:scale(1)}to{transform:scale(1.06) translate(-1.2%,-1%)}}
+@keyframes kb{from{transform:scale(1.04) translate(0,0)}to{transform:scale(1.04) translate(-1%,-0.7%)}}
 .scene-fade{position:absolute;inset:0;background:center/cover no-repeat;image-rendering:pixelated;z-index:1;opacity:0;pointer-events:none;transition:opacity .9s ease}
 .scene-fade.on{opacity:1;transition:none}
 .daycard{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,16,22,.92);z-index:60;pointer-events:none;opacity:0}
@@ -478,7 +478,7 @@ html.light ::-webkit-scrollbar-thumb{background:#b5a67f}
  .b2{padding:14px 12px}
 }
 </style>
-<script>try{if(localStorage.getItem("officeMythTheme")==="light")document.documentElement.classList.add("light")}catch(e){}</script>
+<script>try{if(localStorage.getItem("officeMythTheme")!=="dark")document.documentElement.classList.add("light")}catch(e){}</script>
 </head>
 <body>
 <main id="game" class="boot">
@@ -623,7 +623,7 @@ const LOCS={
  meeting:{name:"会议室",bg:"assets/pixel/meeting-room-day.png",night:"assets/pixel/meeting-room.png",horrorBg:"assets/pixel/meeting-room-night.png"},
  boss:{name:"主管办公室",bg:"assets/pixel/expansion-01/manager-office-day.png",night:"assets/pixel/expansion-01/manager-office.png"},
  roof:{name:"天台",bg:"assets/pixel/weather-01/rooftop-day-clear.png",horrorBg:"assets/pixel/expansion-01/rooftop-night.png"},
- wc:{name:"卫生间",bg:"assets/pixel/weather-01/stairwell-day-clear.png"},
+ wc:{name:"卫生间",bg:"assets/pixel/expansion-01/stairwell-day.png"},
  lobby:{name:"楼下大堂",bg:"assets/pixel/weather-01/lobby-day-clear.png",night:"assets/pixel/expansion-01/lobby-night.png",horrorBg:"assets/pixel/expansion-01/lobby-night.png"},
  security:{name:"监控室",bg:"assets/pixel/expansion-02/security-room.png",horror:true},
  archive:{name:"档案室",bg:"assets/pixel/records-room.png",horror:true},
