@@ -93,6 +93,26 @@ html.light .pxbtn:hover,html.light .qbtn:hover,html.light .choice:hover,html.lig
 .scene{flex:1;position:relative;overflow:hidden;background:#0d1522 url('assets/pixel/office-day.png') center/cover no-repeat;border-bottom:2px solid var(--edge);min-height:200px;image-rendering:pixelated}
 html.light .scene{background-color:#d8cba8;filter:sepia(.22) saturate(.85)}
 .scene.night{filter:brightness(.6) saturate(.85)}
+/* ============ 浮沉记打磨：动画 ============ */
+.scene-bg{position:absolute;inset:0;background:center/cover no-repeat;image-rendering:pixelated;z-index:0;animation:kb 46s ease-in-out infinite alternate}
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.06) translate(-1.2%,-1%)}}
+.scene-fade{position:absolute;inset:0;background:center/cover no-repeat;image-rendering:pixelated;z-index:1;opacity:0;pointer-events:none;transition:opacity .9s ease}
+.scene-fade.on{opacity:1;transition:none}
+.daycard{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,16,22,.92);z-index:60;pointer-events:none;opacity:0}
+.daycard.in{animation:dayin 1.15s ease forwards}
+.daycard b{font-family:var(--font-head);font-size:56px;letter-spacing:.4em;color:var(--gold);text-indent:.4em}
+.daycard span{margin-top:14px;color:var(--muted);font-size:14px;letter-spacing:.3em}
+@keyframes dayin{0%{opacity:0}14%{opacity:1}72%{opacity:1}100%{opacity:0}}
+.text.typing:after{content:"▌";color:var(--gold);margin-left:2px;font-size:.85em;animation:flick 1s steps(2) infinite}
+.eyebrow.stampin{display:inline-block;animation:stampin .5s cubic-bezier(.2,2.4,.4,1) .45s both}
+@keyframes stampin{0%{transform:scale(2.8) rotate(-16deg);opacity:0}55%{transform:scale(.9) rotate(-2deg);opacity:1}100%{transform:scale(1) rotate(-3deg)}}
+.card-in{animation:cardin .32s ease}
+@keyframes cardin{from{transform:translateY(16px) scale(.98);opacity:0}}
+.npc{animation:pkbob 3.4s ease-in-out infinite}
+.npc:nth-child(odd){animation-delay:.9s}
+.dot.on{animation:dotpulse 2.2s ease-in-out infinite}
+@keyframes dotpulse{50%{box-shadow:0 0 10px #5fce8fcc}}
+.pxbtn.off{opacity:.38}
 html.light .scene.night{filter:sepia(.22) saturate(.8) brightness(.78)}
 #game.dusk .scene{filter:brightness(.42) saturate(.75)}
 html.light #game.dusk .scene{filter:sepia(.2) saturate(.72) brightness(.6)}
@@ -473,12 +493,16 @@ html.light ::-webkit-scrollbar-thumb{background:#b5a67f}
     <span class="sp"></span>
     <button class="pxbtn fun-only" onclick="Game.openDex()" title="宝可梦图鉴与队伍">图鉴</button>
     <span id="llmStat"><span class="dot" id="llmDot"></span><span id="llmTxt">大模型检测中…</span></span>
+    <button class="pxbtn" id="sndBtn" onclick="Game.toggleSfx()" title="音效开关" aria-label="音效开关"></button>
+    <button class="pxbtn" id="ambBtn" onclick="Game.toggleAmb()" title="背景音乐开关" aria-label="背景音乐开关"></button>
     <button class="pxbtn" id="themeBtn" onclick="Game.toggleTheme()" title="切换深浅色主题" aria-label="切换深浅色主题"></button>
     <button class="pxbtn" onclick="Game.saveGame(1)" title="存档"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></button>
   </header>
   <section class="main">
     <div class="left">
       <div class="scene" id="scene">
+        <div class="scene-bg" id="sceneBg"></div>
+        <div class="scene-fade" id="sceneFade"></div>
         <button id="mapBtn" class="pxbtn horror-only" onclick="HorUI.openMap()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3L3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/><line x1="9" y1="3" x2="9" y2="19"/><line x1="15" y1="5" x2="15" y2="21"/></svg>楼层地图</button>
         <div class="locbar" id="locbar"></div>
         <div class="loc-banner" id="locBanner"></div>
@@ -507,6 +531,7 @@ html.light ::-webkit-scrollbar-thumb{background:#b5a67f}
       <div class="log" id="log"></div>
     </aside>
   </section>
+  <div class="daycard" id="daycard"></div>
   <div class="overlay hidden" id="overlay"><div class="card" id="modal"></div></div>
   <div class="drawer-veil hidden" id="drawerVeil" onclick="HorUI.closeDrawer()"></div>
   <aside class="drawer hidden" id="drawer">
@@ -545,7 +570,9 @@ const ICONS={
  flame:'<path d="M12 2c2 4 6 6.5 6 11a6 6 0 0 1-12 0c0-2.6 1.2-4.6 2.6-6.4.5 1.8 1.4 2.9 2.9 3.9-.8-2.8-.4-6 .5-8.5z"/>',
  map:'<path d="M9 3L3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/><line x1="9" y1="3" x2="9" y2="19"/><line x1="15" y1="5" x2="15" y2="21"/>',
  backpack:'<path d="M6 21V9a6 6 0 0 1 12 0v12"/><path d="M4 13h16v8H4z"/><path d="M9 7h6"/>',
- clock:'<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/>'};
+ clock:'<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/>',
+  vol:'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>',
+  note:'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>'};
 const ic=n=>'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[n]||"")+"</svg>";
 
 /* ============ 大模型接入（OpenAI 兼容接口，经 serve.py 反代） ============ */
@@ -630,7 +657,47 @@ const FALLBACK={
   {title:"跨部门抢功",text:"隔壁组在汇报里'深度参与'了你的方案，一字未改。",options:[
    {label:"邮件抄送全员对线",result:"你贴出文档修订记录。对方组长脸绿了，主管打圆场。",fx:{kpi:5,favor:-3,danger:8}},
    {label:"私下找主管汇报",result:"主管说'我心中有一杆秤'。秤在哪没人知道。",fx:{favor:5}},
-   {label:"算了",result:"你安慰自己来日方长，心里憋屈了一下午。",fx:{mood:-8}}]}],
+   {label:"算了",result:"你安慰自己来日方长，心里憋屈了一下午。",fx:{mood:-8}}]},
+   {title:"需求突变",text:"你刚把需求文档打磨好，产品负责人从会议室探出头来：'老板昨晚改主意了，这个模块整个重做。'你的光标停在删除键上，一动不动。",options:[
+    {label:"接下重做",result:"你熬到十点半，新版如期上线。负责人在群里发了句'靠谱'，你截了图存进收藏夹。",fx:{kpi:4,favor:6,mood:-10,energy:-5}},
+    {label:"默默提交变更单",result:"变更单批了。只是周报里'扎实'两个字，被悄悄换成了'调整'。",fx:{kpi:2,favor:-2,danger:4}},
+    {label:"先问清楚原因",result:"负责人眼神飘忽：'别问，先做。'你学到：在这家公司，原因永远在需求之后才出现。",fx:{favor:4,kpi:2}}]},
+   {title:"年终奖风声",text:"一张机密群聊截图流进你的邮箱：'今年年终奖，打对折。'全楼层人心浮动，但没人敢当面试探。",options:[
+    {label:"不参与继续干活",result:"你埋头干活。三天后风声自己散了，好像什么都没发生。",fx:{mood:4,danger:-4}},
+    {label:"笑着打听",result:"林棠凑近低声说：'听说只裁新人组。'你们对视一眼，什么都没说。",fx:{rel_lin:6}},
+    {label:"默默更新简历",result:"你当晚打开招聘网站，盯着职位列表看了两小时。没投，但看清了自己的身价。",fx:{mood:-4,danger:6}}]},
+   {title:"深夜事故",text:"凌晨两点，生产环境宕机，你是第一个被电话叫醒的。运维的语音带着电流杂音：'你那个模块，修不修随你，反正一起完蛋。'",options:[
+    {label:"跳上去修",result:"你用临时补丁保住了服务。老板早上的第一条消息是'处理得好'。代价是本周三个通宵。",fx:{kpi:12,favor:8,energy:-15,mood:-8},task:"fire"},
+    {label:"要求先看日志",result:"运维嫌你'推卸责任'，但日志里，真凶是数据库组的配置。",fx:{kpi:4,danger:6,favor:-4}},
+    {label:"假装没接电话",result:"你终于接通时，对面沉默了三秒。那三秒比 404 还让人窒息。",fx:{danger:10,mood:-6}}]},
+   {title:"主管画饼",text:"周主管拍着你肩膀：'下个月你带组，先把这几个活顶一下。'饼又大又亮，就是闻不到香味。",options:[
+    {label:"笑着接下",result:"你点头如捣蒜。饼吃不着，但肚子饱了——主管在周会上表扬了你'有担当'。",fx:{favor:8,mood:-4},task:"ppt"},
+    {label:"问清楚标准",result:"主管翻着PPT，'团队格局'四个字被强调了三次。你把它写进了自己的OKR。",fx:{favor:2,kpi:4}},
+    {label:"反手画个饼",result:"'那工资呢？'他笑容凝固了半秒。你学到：饼是单向的。",fx:{mood:6,favor:-2}}]},
+   {title:"客户投诉",text:"客户冲进总监办公室，把一份数据报告摔在桌上：'这个数怎么来的？！'整层楼的空气都凝固了。",options:[
+    {label:"认领重做",result:"你连夜重做数据，核了两遍。客户语气软了，总监在群里@全员：'表扬。'",fx:{kpi:6,favor:6,mood:-8}},
+    {label:"追查数据源",result:"你发现数据来自上月就废弃的旧接口。运维脸绿了——锅不是你的，但你跟数据组结了梁子。",fx:{kpi:8,danger:4}},
+    {label:"沉默观望",result:"总监默默扛了下来。第二天，他看你的眼神多了一秒。",fx:{danger:8,favor:-4}}]},
+   {title:"办公室恋情曝光",text:"公司群里弹出吃瓜链接：'某楼层恋情实锤。'截图打了码，但角度的咖啡杯是小虹的。",options:[
+    {label:"迅速转移话题",result:"你发了一句'会议室有人吗'，群瞬间安静了。",fx:{mood:4}},
+    {label:"悄悄安慰小虹",result:"小虹耳朵通红：'别传啊。'你郑重点头。前台情报网从此多了一个忠诚节点。",fx:{rel_hong:8,mood:-2}},
+    {label:"截图存证",result:"三个月后瓜再被炒起来时，所有人都记得，是你存的图。",fx:{danger:6,rel_hong:-6}}]},
+   {title:"电梯里遇到大老板",text:"电梯门开，大老板走进来，里面只有你。距离楼下，还有整整十二层。",options:[
+    {label:"简明自我介绍",result:"你一口气报出姓名、部门、最近业绩。老板点头：'有印象。'你不确定他记得的是哪件。",fx:{favor:6,mood:-4}},
+    {label:"聊天气",result:"你聊了最近天气不错。电梯到层，老板说了句'好好干'——全程最自然的一段路程。",fx:{mood:4}},
+    {label:"目视前方",result:"十二层沉默。老板先出去，留了句'辛苦了'，你不知道那是表扬还是同情。",fx:{danger:4,mood:-2}}]},
+   {title:"实习生求救",text:"小吴对着表格卡住，眼角的筋一跳一跳：'哥/姐，这个下午五点要，我……我不知道从哪下手……'",options:[
+    {label:"接过活儿",result:"你接过表格。从现在到下午五点，路还很长。",fx:{mood:-4},task:"mentor"},
+    {label:"教他方法",result:"你带他拆成三步。他自己跑通时，笑得像个拿了奖的人。",fx:{rel_wu:10,kpi:2,mood:-2}},
+    {label:"假装没看见",result:"你继续刷手机。报表出错时，主管问：'当时没人带吗？'",fx:{rel_wu:-8,danger:4}}]},
+   {title:"报销单丢了",text:"财务告诉你，出差的报销单不见了。没它，800 块机票费得你自己掏。",options:[
+    {label:"冲去档案室翻",result:"你在打印机底下翻到揉皱的单据。财务叹气：'下次拍个照再扔。'",fx:{money:800,energy:-8}},
+    {label:"认栽",result:"你转了800。机票钱没了，疼比坐飞机还久。",fx:{money:-800,mood:-6}},
+    {label:"请小虹作证",result:"小虹替你作证，财务同意补一半。前台情报网，从不掉链子。",fx:{money:400,rel_hong:6}}]},
+   {title:"周四会议截胡",text:"晨会上，隔壁组把你的方案'借鉴'进了他们的汇报，PPT 上署名'团队共创'。主管的眼睛亮了。",options:[
+    {label:"冷静补充细节",result:"你起身补齐了数据来源、排期和坑。主管的'不错'里，一半是夸，一半是警告。",fx:{kpi:8,favor:2,danger:6}},
+    {label:"暂且沉默留证",result:"你没说话，但截了修订记录存好。有些话，不用现在说。",fx:{danger:4,mood:-6}},
+    {label:"大方归功于团队",result:"'应该算全团队的。'全场安静一瞬。林棠看了你一眼，主管在纪要里写下'格局'。",fx:{rel_lin:6,favor:4}}]}],
  fun:[
   {title:"打印机成精",text:"三楼打印机幻化人形，自称'打印大妖·卡纸君'，扬言用七年陈年废纸淹没办公区。",options:[
    {label:"递纸供养",result:"它吸饱A4纸，满意地打了一张'外出报备单'消失了。",fx:{kpi:3,mood:5}},
@@ -689,7 +756,7 @@ function newState(mode){
  return {mode,day:1,slot:0,loc:"desk",money:5000,salary:9000,snacks:0,intel:0,wcCount:0,snackToday:false,
   st:{mood:60,energy:85,kpi:15,favor:50,danger:0,san:100,weird:0,qi:30},
   rel:{zhou:50,lin:50,wu:55,he:50,wei:50,hong:50,zhao:50,chen:0},
-  allies:[],rules:[],chat:{},hist:[],dayLog:[],flags:{},ended:false};
+  allies:[],rules:[],chat:{},hist:[],dayLog:[],flags:{},task:null,ended:false};
 }
 const modeName=()=>MODES[S.mode].name;
 const isHorror=()=>S&&S.mode==="horror",isFun=()=>S&&S.mode==="fun";
@@ -904,7 +971,17 @@ const HorUI={
 /* ============ UI 基础 ============ */
 function toast(txt,color){const t=document.createElement("div");t.className="toast";t.style.borderColor=color||"#4d637f";t.textContent=txt;$("toasts").append(t);setTimeout(()=>t.remove(),2600)}
 function logIt(line){if(!S)return;const p=document.createElement("p"),b=document.createElement("b");b.textContent=S.day+"天 "+timeStr()+" ";p.append(b,document.createTextNode(line));$("log").prepend(p);while($("log").children.length>60)$("log").lastChild.remove();S.dayLog.push(line);if(S.dayLog.length>20)S.dayLog.shift()}
-function say(sp,txt,opts=[],hint=""){$("speaker").textContent=sp;$("text").textContent=txt;
+/* 打字机旁白（仅旁白，且尊重系统"减少动态"设置） */
+let _twT=null;
+function flushTw(){if(_twT){clearInterval(_twT);_twT=null}const el=$("text");if(el)el.classList.remove("typing")}
+function startTw(full){
+ flushTw();
+ try{if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches){$("text").textContent=full;return}}catch(e){}
+ const el=$("text");el.textContent="";el.classList.add("typing");
+ const step=Math.max(2,Math.ceil(full.length/90));let i=0;
+ _twT=setInterval(()=>{i+=step;el.textContent=full.slice(0,i);if(i>=full.length){clearInterval(_twT);_twT=null;el.classList.remove("typing")}},16);
+}
+function say(sp,txt,opts=[],hint=""){flushTw();$("speaker").textContent=sp;if(sp==="旁白")startTw(txt);else $("text").textContent=txt;
  const o=$("opts");o.innerHTML="";opts.forEach(l=>{const b=document.createElement("button");b.className="choice";if(l[2])b.innerHTML=l[0];else b.textContent=l[0];b.onclick=l[1];o.append(b)});
  $("hint").textContent=hint||"";
  HorUI.onSay(sp);}
@@ -919,12 +996,13 @@ function applyFx(fx,silent){
  const map={mood:["心情","#5fce8f"],energy:["体力","#f2c879"],kpi:["绩效","#8ab6d6"],favor:["主管好感","#f2b56b"],danger:["危险度","#e06060"],san:["理智","#b9a0d6"],weird:["怪异度","#c96a9a"],qi:["斗志","#ff9d5c"]};
  for(const k in fx){if(!fx[k])continue;const key=k==="credit"?"kpi":k;
   if(key in S.st){S.st[key]=clamp(S.st[key]+fx[key],0,100);if(!silent)toast(map[key][0]+(fx[key]>0?"+":"")+fx[key],map[key][1])}
-  else if(key==="money"){S.money=Math.max(0,S.money+fx[key]);if(!silent)toast("存款"+(fx[key]>0?"+¥":"-¥")+Math.abs(fx[key]),"#f2c879")}
+  else if(key==="money"){S.money=Math.max(0,S.money+fx[key]);if(!silent){toast("存款"+(fx[key]>0?"+¥":"-¥")+Math.abs(fx[key]),"#f2c879");if(fx[key]>0)Sfx.play("coin")}}
   else if(key==="snacks"){S.snacks=Math.max(0,S.snacks+fx[key]);if(!silent)toast("零食×"+S.snacks,"#f2c879")}}
  for(const k in fx){const m=k.match(/^rel_(\w+)$/);if(m&&S.rel[m[1]]!=null){S.rel[m[1]]=clamp(S.rel[m[1]]+fx[k],0,100);if(!silent)toast(NPCS[m[1]].name+"关系"+(fx[k]>0?"+":"")+fx[k],"#8ab6d6")}}
  if(S.st.san<=0)return endGame("san0");if(S.st.weird>=100)return endGame("weird");
  render();}
 function advanceTime(){S.slot++;saveGame();
+ if(!isHorror()&&S.slot<SLOTS.length){const b=$("locBanner");b.textContent=timeStr();b.classList.add("show");clearTimeout(advanceTime._bt);advanceTime._bt=setTimeout(()=>b.classList.remove("show"),1100);Sfx.play("tick")}
  if(isHorror()&&S.slot===6)HorUI.bell();
  if(S.slot>=SLOTS.length){evening();return}
  render();}
@@ -939,7 +1017,11 @@ function render(){
  $("money").textContent="¥"+S.money.toLocaleString();
  const loc=LOCS[S.loc];const sc=$("scene");
  const sceneBg=(S.slot>=5?(isHorror()?(loc.horrorBg||loc.night||loc.bg):(loc.night||loc.bg)):loc.bg);
- sc.style.backgroundImage="url('"+sceneBg+"')";
+ const bgEl=$("sceneBg");
+  if(bgEl.getAttribute("data-bg")!==sceneBg){
+   bgEl.style.backgroundImage="url('"+sceneBg+"')";bgEl.setAttribute("data-bg",sceneBg);
+   const sf=$("sceneFade");sf.style.backgroundImage="url('"+sceneBg+"')";
+   sf.classList.add("on");void sf.offsetWidth;sf.classList.remove("on");}
  sc.classList.toggle("night",S.slot>=5&&!isHorror());
  $("locbar").innerHTML="";
  for(const k in LOCS){if(LOCS[k].horror&&!isHorror())continue;const b=document.createElement("button");b.className="loc"+(k===S.loc?" cur":"");b.textContent=LOCS[k].name;b.onclick=()=>moveTo(k);$("locbar").append(b)}
@@ -966,7 +1048,7 @@ function render(){
  if(isHorror())bars.splice(2,2,["san","理智"],["weird","怪异"]);
  $("bars").innerHTML=bars.map(([k,nm])=>'<div class="meter">'+nm+'<div class="track"><div class="fill '+k+'" style="width:'+S.st[k]+'%"></div></div></div>').join("")
   +(isFun()?'<div class="meter">零食×'+S.snacks+"</div>":"");
- $("selfPanel").innerHTML='<div class="sp-dept">栖木公司 · 综合事业部 · 新员工</div><div class="sp-main">第<b>'+S.day+'</b>/10天 · 情报'+S.intel+' · 盟友'+S.allies.length+(isFun()&&window.Battle?window.Battle.dexLine():"")+'</div><div class="sp-log">'+S.dayLog.slice(-2).join("；")+'</div>';
+ $("selfPanel").innerHTML='<div class="sp-dept">栖木公司 · 综合事业部 · 新员工</div><div class="sp-main">第<b>'+S.day+'</b>/10天 · 情报'+S.intel+' · 盟友'+S.allies.length+(S.task?" · 委托「"+S.task.title+"」"+S.task.progress+"/"+S.task.need:(isFun()&&window.Battle?window.Battle.dexLine():""))+'</div><div class="sp-log">'+S.dayLog.slice(-2).join("；")+'</div>';
  renderActions();}
 function moveTo(k){
  if(isHorror()){
@@ -991,7 +1073,8 @@ function renderActions(){
  const wc=S.wcCount>=3;
  h+='<button class="act" onclick="Game.toiletFree()" '+(wc?"disabled":"")+'>'+ic("wc")+"<b>带薪拉屎</b><small>"+(wc?"今日已蹲3次，腿麻了":"不占时间 心情+ 体力+（3次/天）")+"</small></button>";
  h+="<h4>正经事</h4>";
- h+=btn("认真工作","绩效+10 主管好感+2","act('work')","briefcase");
+ h+=S.task?btn("推进「"+S.task.title+"」","进度 "+S.task.progress+"/"+S.task.need+" · 剩"+Math.max(0,S.task.due-S.day)+"天","act('work')","briefcase"):btn("认真工作","绩效+10 主管好感+2","act('work')","briefcase");
+ if(!S.task)h+=btn("接个委托","主动揽活，机会与风险并存","act('job')","folder");
  h+="<h4>职场修罗场</h4>";
  h+="<details class='grp'><summary>"+ic("users")+"对同事出手</summary><div class='sub'>"+["lin","wu","he","wei"].map(k=>'<button class="choice" onclick="Game.politics(\'peer\',\''+k+'\')">'+NPCS[k].name+"（"+NPCS[k].tag+"）</button>").join("")+"</div></details>";
  h+="<details class='grp'><summary>"+ic("crown")+"对上司出手</summary><div class='sub'>"+'<button class="choice" onclick="Game.politics(\'up\',\'zhou\')">周主管（汇报/邀功/拍马/硬刚）</button>'+"</div></details>";
@@ -1013,6 +1096,38 @@ function renderActions(){
  }
   }
  A.innerHTML=h;}
+/* ============ 工作委托（认真版任务系统） ============ */
+const T_POOL={
+ weekly:{title:"周报",desc:"主管要一份数据详实的周报",need:1,due:1,fx:{kpi:6,favor:3}},
+ comp:{title:"竞品分析",desc:"隔壁组做的竞品分析，主管也想看一份",need:2,due:2,fx:{kpi:10,favor:4,money:300}},
+ fire:{title:"线上救火",desc:"生产环境出了状况，要盯到修好为止",need:2,due:1,fx:{kpi:12,favor:6,danger:6}},
+ ppt:{title:"救主管的PPT",desc:"主管的晋升答辩PPT，今晚要",need:1,due:1,fx:{favor:8,kpi:4}},
+ client:{title:"陪客户吃饭",desc:"客户点名要你陪一陪",need:1,due:1,fx:{favor:10,mood:-6,money:-100}},
+ mentor:{title:"带小吴培训",desc:"小吴的入职培训轮到你了",need:1,due:2,fx:{kpi:5,rel_wu:10}},
+ audit:{title:"审计材料",desc:"财务要审计材料，缺你那一块",need:2,due:2,fx:{kpi:8,favor:5,money:200}}};
+function assignTask(id){
+ const t=T_POOL[id];if(!t||!S||S.task)return false;
+ S.task={id,title:t.title,desc:t.desc,need:t.need,fx:t.fx,progress:0,due:S.day+t.due};
+ logIt("接下委托「"+t.title+"」");return true;}
+function taskTick(){
+ if(!S||!S.task)return false;
+ S.task.progress++;
+ logIt("推进「"+S.task.title+"」("+S.task.progress+"/"+S.task.need+")");
+ if(S.task.progress>=S.task.need){
+  const t=S.task;S.task=null;
+  S.flags.tasksDone=(S.flags.tasksDone||0)+1;
+  applyFx(t.fx);
+  logIt("完成委托「"+t.title+"」！");
+  Sfx.play("taskdone");
+  return true}
+ return false}
+function jobAction(){
+ if(S.task){say("旁白","你手上还有「"+S.task.title+"」（"+S.task.progress+"/"+S.task.need+"，"+Math.max(0,S.task.due-S.day)+"天后到期），先把它干完再说。",[["继续",()=>render()]]);return}
+ const id=pick(Object.keys(T_POOL));
+ if(!assignTask(id))return;
+ const t=T_POOL[id];
+ Sfx.play("task");
+ say("周主管","（路过你工位）『"+t.title+"』，"+t.desc+" "+(t.due<=1?"今天下班前要。":"明天这个点前。"),[["开干",()=>advanceTime()],["先缓缓",()=>render()]])}
 /* 摸鱼与日常 */
 const ACT_FX={
  msg:{label:"回消息",fx:{mood:5},risk:4},video:{label:"刷短视频",fx:{mood:8,energy:-2},risk:9},
@@ -1025,15 +1140,17 @@ const ACT_FX={
  snack:{label:"顺零食",fx:{snacks:1,mood:4},risk:10}};
 async function act(id){
  if(LLM_BUSY)return;const a=ACT_FX[id];if(!a)return;
+ if(id==="job"){jobAction();return}
  if(id==="snack")S.snackToday=true;
  if(id==="snack"){
    if(isFun()&&window.Battle&&window.Battle.wildRoll()){await window.Battle.wildEncounter();return}
   const caught=Math.random()*100<a.risk;
   say("旁白",caught?"你刚把零食塞进包里，转身就撞见何姐端着咖啡站在门口。她微笑着看了看你的包，什么都没说。":"你面不改色地将一包零食滑入背包内层，动作行云流水，颇具职业素养。",[["若无其事离开",()=>{applyFx(caught?{snacks:1,favor:-5,danger:12,mood:-6}:{snacks:1,mood:4});logIt(caught?"顺零食被抓包！":"顺零食成功，晚上加餐");advanceTime()}]]);return}
  applyFx(a.fx);
+ if(id==="work"&&S.task)taskTick();
  let caught=false;
  if(a.risk>0&&S.slot!==2){const d=Math.max(0,S.st.danger-20);caught=Math.random()*100<a.risk+d/6;}
- if(caught){S.st.danger=clamp(S.st.danger+18,0,100);S.st.favor=clamp(S.st.favor-6,0,100);
+ if(caught){Sfx.play("bad");S.st.danger=clamp(S.st.danger+18,0,100);S.st.favor=clamp(S.st.favor-6,0,100);
   logIt(a.label+"时被周主管撞见！");
   say("周主管",pick(["（不知何时出现在你身后）'嗯？这个很好玩吗？'","（敲了敲你的隔板）'工作做完了吗？'","（盯着你的屏幕）'下班前，把这个流程图补给我。'"]),[["点头认错",()=>{applyFx({mood:-8,kpi:-4});advanceTime()}],["狡辩'我在调研'",()=>{if(Math.random()<0.4){say("周主管","'……行吧，记得出个调研报告。'你竟然混过去了。",[["溜了",()=>{advanceTime()}]]);logIt("狡辩成功！")}else{say("周主管","'调研？那我帮不了你。'他记下了什么。你的绩效在颤抖。",[["完了",()=>{applyFx({mood:-6,kpi:-6});advanceTime()}]]);logIt("狡辩失败…")}}]]);render();return}
  S.st.danger=clamp(S.st.danger-(S.slot===2?15:3),0,100);
@@ -1050,7 +1167,7 @@ const NPC_ROSTER=()=>"NPC名单（只用这些名字）：周主管（上司）�
  async function genEvent(){
  const sys="你是职场文字游戏《职场神话》的主持人（GM）。当前模式："+modeName()+"。风格要求："+MODES[S.mode].sys
   +"\n"+NPC_ROSTER()
-  +"\n请生成一个此刻可能发生的随机事件，贴合当前状态与最近发生的事。严格只输出一个JSON对象，格式："
+  +"\n请生成一个此刻可能发生的随机事件，贴合当前状态与最近发生的事。可取材：需求变更、甩锅抢功、画饼考核、年终奖风声、客户投诉、系统故障、办公室政治、人际暗流。严格只输出一个JSON对象，格式："
   +'\n{"title":"事件标题","text":"事件描述，80~150字","options":[{"label":"选项（10字内）","result":"该选项的直接结果，30~60字","mood":0,"energy":0,"kpi":0,"favor":0,"danger":0,"money":0,'
   +(isHorror()?'"sanity":0,"weird":0,':'"qi":0,')+'"rel_zhou":0,"rel_lin":0,"rel_wu":0}'
   +'\n]}要求：恰好3个选项；数值为-15~15的整数，可以有0；不要输出JSON以外的任何文字。';
@@ -1061,10 +1178,10 @@ async function randomEvent(){
  const fb=()=>{const ev0=pick(FALLBACK[S.mode]);return {title:ev0.title,text:ev0.text,options:ev0.options.map(o=>({label:o.label,result:o.result,fx:o.fx||{}}))}};
  const waiting=["领导正在思考…","事件正在发酵…","职场之灵占卜中…","命运的骰子滚动中…"];
  LLM_BUSY=true;const my=++evToken;
- const show=ev=>{LLM_BUSY=false;
+ const show=ev=>{LLM_BUSY=false;Sfx.play("event");
   S.hist.push(ev.title);if(S.hist.length>8)S.hist.shift();
   say("【事件】"+ev.title,ev.text,ev.options.map(o=>[o.label,()=>{
-    applyFx(o.fx);logIt("【"+ev.title+"】"+o.label+"："+o.result);
+    applyFx(o.fx);if(o.fx.task&&assignTask(o.fx.task))Sfx.play("task");logIt("【"+ev.title+"】"+o.label+"："+o.result);
     say("旁白",o.result,[["继续",()=>advanceTime()]]);
     if(o.fx.battle)setTimeout(()=>startBattle(o.fx.battle),50);}]));
   render();};
@@ -1138,6 +1255,7 @@ async function politics(kind,tid){
   if(ok){if(a[3])fx["rel_"+tid]=a[3];if(kind==="peer"&&a[0]==="结盟"){if(!S.allies.includes(tid))S.allies.push(tid);}}
   else{fx["rel_"+tid]=(a[4]||-8);if(a[0]==="甩锅"||a[0]==="抢功")fx.danger=(fx.danger||0)+10;fx.mood=(fx.mood||0)-5;}
   applyFx(fx);
+  if(ok&&kind==="down"&&S.task&&Math.random()<.35){logIt("小吴帮你搭了把手");taskTick()}
   logIt(P.title+"→"+n.name+"："+a[0]+(ok?"（成功）":"（失败）"));
   LLM_BUSY=true;const my=++ppToken;
   say("旁白","（正在推演这场交锋…）",[["跳过",()=>{ppToken++;show()}]]);
@@ -1152,9 +1270,11 @@ function toiletFree(){render();
 /* ============ 傍晚 & 一天结束（认真/娱乐版） ============ */
 function evening(){
  if(isHorror())return Horror.evening();
+ Sfx.play("night");
  render();
  const opts=[];
  opts.push([ic("moon")+"加班一小时",()=>{applyFx({kpi:10,favor:4,energy:-14,mood:-8,danger:-10});logIt("加班一小时");
+   if(S.task&&Math.random()<.5)taskTick();
    say("旁白","整层楼渐渐暗下来，只有你的工位亮着。你已经记不清这是本周第几次加班了。",[["下班",()=>endDay()]]);},true]);
  opts.push([ic("logout")+"准时开溜",()=>{applyFx({mood:10,energy:5,favor:-2});S.st.danger=Math.max(0,S.st.danger-30);logIt("18:00准时消失");endDay()},true]);
  if(!S.snackToday)opts.push([ic("cookie")+"绕去茶水间拿零食",()=>{S.loc="pantry";act("snack")},true]);
@@ -1173,11 +1293,15 @@ async function daySummary(){
  const modal=$("modal");
  $("overlay").classList.remove("hidden");
  modal.className="card";modal.innerHTML="<div class='eyebrow'>第"+S.day+"天 · 结算</div><h1>"+(S.day>=10?"考核日到了":"夜深了")+"</h1><p>"+(line?esc(line):"这一天就这样过去了。办公室的灯熄了，故事还在继续。")+"</p><p class='small'>心情"+S.st.mood+" · 体力"+S.st.energy+" · 绩效"+S.st.kpi+" · 好感"+S.st.favor+" · 存款¥"+S.money+(isFun()?" · 斗志"+S.st.qi:"")+"</p><button class='primary' id='nextDayBtn'>"+(S.day>=10?"进入考核 →":"睡一觉，明天继续 →")+"</button>";
- $("nextDayBtn").onclick=()=>{$("overlay").classList.add("hidden");nextDay()};}
+ $("nextDayBtn").onclick=()=>{$("overlay").classList.add("hidden");nextDay()};
+ const mm=$("modal");mm.classList.remove("card-in");void mm.offsetWidth;mm.classList.add("card-in");}
 function nextDay(){
  S.day++;S.slot=0;S.wcCount=0;S.snackToday=false;S.dayLog=[];S.flags.intelToday=0;
+ if(S.task&&S.day>S.task.due){const t=S.task;S.task=null;applyFx({kpi:-8,favor:-6,danger:10,mood:-5});logIt("「"+t.title+"」逾期，周主管当众点名")}
  if(S.day>10)return endGame("review");
- if(S.day===7){S.money+=S.salary;toast("发薪日！工资¥"+S.salary.toLocaleString(),"#f2c879");logIt("发薪日，到账¥"+S.salary)}
+ if(S.day===7){S.money+=S.salary;toast("发薪日！工资¥"+S.salary.toLocaleString(),"#f2c879");logIt("发薪日，到账¥"+S.salary);Sfx.play("salary")}
+ const dc=$("daycard");dc.innerHTML="<b>第"+S.day+"天</b><span>"+(S.day===7?"发薪日":"09:00 · 打卡进场")+"</span>";dc.classList.remove("in");void dc.offsetWidth;dc.classList.add("in");
+ setTimeout(()=>dc.classList.remove("in"),1200);Sfx.play("day");
  newDayStart();}
 async function newDayStart(){
  if(isHorror())return Horror.newDayStart();
@@ -1222,7 +1346,9 @@ async function endGame(kind){
    else if(s.favor<25){eyebrow="娱乐版 · 特殊结局";title="被HR宝可梦捕获";body="KPI金蝎的毒针命中要害。你被装进'优化球'，被传送去了另一个部门。醒来时，训练家何姐微笑着：'欢迎来到新图鉴。'"}
    else{eyebrow="娱乐版 · 平凡结局";title="快乐的训练家";body="十天里你收服了零碎的宝可梦、零食和心情。日子不好不坏，但明天电视里的摩尔庄园会更新，人生也是。"}};if(!eyebrow){eyebrow="意外结局";title="故事暂告一段落";body="走廊尽头仍亮着一盏灯，故事在这里按下了暂停键。"}
  }
- modal.innerHTML="<div class='eyebrow'>"+eyebrow+"</div><h1>"+title+"</h1><p>"+body+"</p><p class='small'>最终状态：绩效"+S.st.kpi+" · 好感"+S.st.favor+" · 心情"+S.st.mood+" · 存款¥"+S.money.toLocaleString()+(fx&&fx.salary?" · 新月薪¥"+fx.salary.toLocaleString():"")+"</p><button class='primary' id='re'>再来一局（换个版本？）</button>";
+ modal.innerHTML="<div class='eyebrow stampin'>"+eyebrow+"</div><h1>"+title+"</h1><p>"+body+"</p><p class='small'>最终状态：绩效"+S.st.kpi+" · 好感"+S.st.favor+" · 心情"+S.st.mood+" · 存款¥"+S.money.toLocaleString()+(fx&&fx.salary?" · 新月薪¥"+fx.salary.toLocaleString():"")+((S.flags.tasksDone||0)?" · 完成委托"+S.flags.tasksDone:"")+"</p><button class='primary' id='re'>再来一局（换个版本？）</button>";
+ Sfx.play("end");Sfx.stopAmb();
+ const mm=$("modal");mm.classList.remove("card-in");void mm.offsetWidth;mm.classList.add("card-in");
  if(fx&&fx.salary)S.salary=fx.salary;
  $("re").onclick=()=>{localStorage.removeItem("officeMyth");location.reload()};
  localStorage.removeItem("officeMyth");}
@@ -1239,6 +1365,7 @@ function saveGame(manual){try{if(S)localStorage.setItem("officeMyth",JSON.string
 function loadGame(){try{const d=localStorage.getItem("officeMyth");return d?JSON.parse(d):null}catch(e){return null}}
 /* ============ 启动 ============ */
 function titleScreen(){
+ Sfx.stopAmb();Sfx.ui();
  $("game").className="boot";
  const modal=$("modal");$("overlay").classList.remove("hidden");
  const save=loadGame();const okSave=save&&save.mode&&MODES[save.mode]&&save.st&&save.rel&&!save.ended;
@@ -1257,14 +1384,17 @@ function titleScreen(){
   render();say("旁白","欢迎回来。第"+S.day+"天，故事继续。",[["开始行动",()=>{$("opts").innerHTML="";render()}]])};}
 function startGame(mode){
  S=newState(mode);
+ Sfx.ui();Sfx.startAmb();
  if(mode==="horror")Horror.ensure();
  HorUI.chatTarget=null;HorUI.closeDrawer();
  $("overlay").classList.add("hidden");render();
  say("旁白","你在栖木公司综合事业部报到。工位靠窗，第四张桌子空着。今天是第1天，距离季度考核还有10天。"+(mode==="fun"?"听说这栋楼的领导都养宝可梦——而且办公用具也在悄悄成精。多打多练、多收多图鉴，你的工牌精灵会跟着你一起升级。":mode==="horror"?"前台公示栏贴着一张《办公室守则》，好像比昨天多了几条。":"主管姓周，笑得很标准。"),[["开始打工",()=>{if(mode==="horror"){newDayStart()}else{say("旁白","09:00，打卡机滴的一声。你的社畜人生开始了。",[["开始行动",()=>{$("opts").innerHTML="";render()}]])}}]]);
  saveGame();}
-window.Game={act,politics,startBattle,openDex:function(){if(window.Battle)window.Battle.openDex()},openRules,toiletFree,saveGame:(m)=>saveGame(m===1),moveTo:(k)=>moveTo(k),toggleTheme:toggleTheme};
-window.addEventListener("load",function(){HorUI.init();setTheme(currentTheme());titleScreen();pingLLM();(function(){try{var q2=new URLSearchParams(location.search);if(!q2.has("autobattle")&&!q2.has("autodex"))return;if(q2.has("light"))document.documentElement.classList.add("light");setTimeout(function(){startGame("fun");if(window.Battle){window.Battle._fast=true;window.Battle._noLLM=true;window.Battle._testParty();if(q2.has("autodex")){window.Battle.openDex();if(q2.has("dextab")){var dt=document.querySelector('[data-dtab="dex"]');if(dt)dt.click();}}else{window.Battle.startBattle(q2.get("autobattle")||"zhou");}if(q2.has("autocmd")){setTimeout(function(){if(window.Battle&&window.Battle._autoContinue){window.Battle._autoContinue();}},1500);}}},400);}catch(e){}})();});
+window.Game={act,politics,startBattle,openDex:function(){if(window.Battle)window.Battle.openDex()},openRules,toiletFree,saveGame:(m)=>saveGame(m===1),moveTo:(k)=>moveTo(k),toggleTheme:toggleTheme,toggleSfx:function(){Sfx.toggleSfx()},toggleAmb:function(){Sfx.toggleAmb()}};
+window.addEventListener("load",function(){HorUI.init();setTheme(currentTheme());titleScreen();pingLLM();
+  document.addEventListener("click",function(e){if(window.Sfx&&e.target&&e.target.closest&&e.target.closest("button")&&!e.target.closest(".battle"))Sfx.play("click")});(function(){try{var q2=new URLSearchParams(location.search);if(!q2.has("autobattle")&&!q2.has("autodex"))return;if(q2.has("light"))document.documentElement.classList.add("light");setTimeout(function(){startGame("fun");if(window.Battle){window.Battle._fast=true;window.Battle._noLLM=true;window.Battle._testParty();if(q2.has("autodex")){window.Battle.openDex();if(q2.has("dextab")){var dt=document.querySelector('[data-dtab="dex"]');if(dt)dt.click();}}else{window.Battle.startBattle(q2.get("autobattle")||"zhou");}if(q2.has("autocmd")){setTimeout(function(){if(window.Battle&&window.Battle._autoContinue){window.Battle._autoContinue();}},1500);}}},400);}catch(e){}})();});
 </script>
+<script src="sound.js"></script>
 <script src="horror.js"></script>
 <script src="battle.js"></script>
 </body>
