@@ -324,6 +324,7 @@ function plate(f,side){
 function bRender(){
  if(!BT)return;
  const b=BT;
+ b._rn=(b._rn||0)+1;
  const cmd=b.cmdHTML();
  $("modal").innerHTML=
   '<div class="b2-head"><span class="eyebrow">娱乐版 · 宝可梦式对战</span><span class="b2-loc">'+ic("spark")+esc(locName())+"</span>"
@@ -390,7 +391,7 @@ Battle.bindCmd=function(){
  const b=BT;if(!b)return;const $c=id=>$(id);
  const on=(id,fn)=>{const e=$(id);if(e)e.onclick=fn};
  if(b.mode==="wait"){on("b2cont",()=>{Snd.play("click");if(b.over)return;b.mode="cmd";b.sub=null;bRender()});return}
- if(b.mode==="end")return;
+ if(b.mode==="end"){on("b2done",()=>{Snd.play("click");closeBattleModal()});return}
  if(b.mode==="release"){
   b.party.forEach((f,i)=>{const e=document.querySelector('[data-rel="'+i+'"]');if(e)e.onclick=async()=>{Snd.play("click");await releaseAndCapture(i)}});
   on("b2skipcap",async()=>{Snd.play("click");bLog("你把手里的球收回了口袋。");b.mode="cmd";await enemyTurn();await finishRound()});
@@ -888,7 +889,7 @@ async function meFainted(){
  const rest=b.party.filter(f=>f!==b.me&&f.hp>0);
  if(rest.length){
   b.me.hp=0;
-  b.mode="switch";bRender();
+  b.mode="switch";b.sub=null;bRender();
  }else{
   await defeat();
  }
@@ -927,6 +928,7 @@ function endBattle(reason,fx){
  syncPartyToSave();
  saveGame();
  bRender();
+ b._rEnd=b._rn;
  const done=$("b2done");
  if(done)done.onclick=()=>{Snd.play("click");closeBattleModal()};
 }
@@ -1001,6 +1003,7 @@ Battle.ensurePoke=ensurePoke;
 /* ---------------- 测试钩子（无头截图/冒烟用） ---------------- */
 Battle._autoContinue=function(){
   if(BT&&!BT.over&&BT.mode==="wait"){BT.mode="cmd";BT.sub=null;bRender()}};
+Battle._reset=function(){if(BT)closeBattleModal()};
 Battle._cheat=function(o){
   if(!BT)return;
   if(o&&o.foeHp!=null)BT.foe.hp=clamp(o.foeHp,1,BT.foe.maxhp);
@@ -1010,7 +1013,7 @@ Battle._cheat=function(o){
 };
 Battle._state=function(){
   if(!BT)return null;
-  return{mode:BT.mode,sub:BT.sub,over:BT.over,busy:BT.busy,key:BT.key,wild:BT.wild,turn:BT.turn,hype:BT.hype,
+  return{mode:BT.mode,sub:BT.sub,over:BT.over,busy:BT.busy,key:BT.key,wild:BT.wild,turn:BT.turn,hype:BT.hype,rnd:BT._rn||0,rEnd:BT._rEnd||0,
    foe:{name:BT.foe.name,hp:BT.foe.hp,max:BT.foe.maxhp,status:BT.foe.status||null,phase:!!BT.foe.phase},
    me:{name:BT.me.name,key:BT.me.key,hp:BT.me.hp,max:BT.me.maxhp,status:BT.me.status||null},
    party:BT.party.map(f=>({name:f.name,key:f.key,hp:f.hp})),
