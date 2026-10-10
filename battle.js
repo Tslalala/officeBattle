@@ -905,6 +905,8 @@ async function defeat(){
  }
  b.endTitle="斗败……";
  b.endTxt=LOSETXT[b.key]||"你的队伍溃散了。你在工位上趴了半小时才缓过来，同事在你的桌上放了一瓶脉动。";
+ S.flags.battleDoneDay=S.flags.battleDoneDay||{};
+ S.flags.battleDoneDay[b.key]=S.day;
  endBattle("lose",{mood:-12,qi:5,favor:-3});
 }
 const LOSETXT={

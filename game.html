@@ -1199,7 +1199,7 @@ async function randomEvent(){
   render();};
  say("旁白",pick(waiting),[["离线跳过（用内置事件）",()=>{evToken++;show(fb())}]],"正在通过大模型生成事件…");
  let ev=null;
- try{ev=await genEvent();if(my!==evToken)return}catch(e){setLLM(false)}
+ try{ev=await genEvent();if(my!==evToken)return}catch(e){setLLM(false);if(my!==evToken)return}
  if(!ev)ev=fb();
  show(ev);}
 /* ============ NPC 对话 ============ */
@@ -1271,7 +1271,7 @@ async function politics(kind,tid){
   logIt(P.title+"→"+n.name+"："+a[0]+(ok?"（成功）":"（失败）"));
   LLM_BUSY=true;const my=++ppToken;
   say("旁白","（正在推演这场交锋…）",[["跳过",()=>{ppToken++;show()}]]);
-  let line=null;try{line=(await llm([{role:"user",content:"职场游戏《职场神话》（"+modeName()+"）。主角对"+n.name+"（"+n.tag+"，人设："+n.style+"）发动了「"+a[0]+"」（意图："+a[1]+"），结果是"+(ok?"成功":"失败")+"。主角状态："+stateSummary()+"。请用60~100字生动描述这场交锋的过程与"+n.name+"的反应，符合模式风格。只输出描述本身。"}],{maxTokens:220,temp:0.9})).trim();if(my!==ppToken)return}catch(e){}
+  let line=null;try{line=(await llm([{role:"user",content:"职场游戏《职场神话》（"+modeName()+"）。主角对"+n.name+"（"+n.tag+"，人设："+n.style+"）发动了「"+a[0]+"」（意图："+a[1]+"），结果是"+(ok?"成功":"失败")+"。主角状态："+stateSummary()+"。请用60~100字生动描述这场交锋的过程与"+n.name+"的反应，符合模式风格。只输出描述本身。"}],{maxTokens:220,temp:0.9})).trim();if(my!==ppToken)return}catch(e){if(my!==ppToken)return}
   function show(){LLM_BUSY=false;say("【"+a[0]+" · "+(ok?"得手":"翻车")+"】",line||(ok?"你得手了，一切尽在掌握。":"翻车了。"+n.name+"的反应比你预想的激烈，办公室的目光都聚了过来。"),[["继续",()=>advanceTime()]])}
   show();}}
 /* ============ 带薪拉屎（免费，不占槽） ============ */
@@ -1300,7 +1300,7 @@ async function daySummary(){
  LLM_BUSY=true;const my=++summaryToken;
  say("旁白","（大模型正在撰写今日小结…）",[["跳过",()=>{summaryToken++;LLM_BUSY=false;nextDay()}]]);
  let line=null;
- try{line=(await llm([{role:"user",content:"职场游戏《职场神话》（"+modeName()+"）。今天是第"+S.day+"天。状态："+stateSummary()+"。今日大事记："+(S.hist.slice(-4).join("；")||"平淡的一天")+"。请用40~70字、符合模式风格的旁白总结这一天，可以埋一个钩子或伏笔。只输出旁白本身。"}],{maxTokens:150,temp:0.95})).trim();if(my!==summaryToken)return}catch(e){}
+ try{line=(await llm([{role:"user",content:"职场游戏《职场神话》（"+modeName()+"）。今天是第"+S.day+"天。状态："+stateSummary()+"。今日大事记："+(S.hist.slice(-4).join("；")||"平淡的一天")+"。请用40~70字、符合模式风格的旁白总结这一天，可以埋一个钩子或伏笔。只输出旁白本身。"}],{maxTokens:150,temp:0.95})).trim();if(my!==summaryToken)return}catch(e){if(my!==summaryToken)return}
  LLM_BUSY=false;
  const modal=$("modal");
  $("overlay").classList.remove("hidden");
@@ -1362,8 +1362,8 @@ async function endGame(kind){
  Sfx.play("end");Sfx.stopAmb();
  const mm=$("modal");mm.classList.remove("card-in");void mm.offsetWidth;mm.classList.add("card-in");
  if(fx&&fx.salary)S.salary=fx.salary;
- $("re").onclick=()=>{localStorage.removeItem("officeMyth");location.reload()};
- localStorage.removeItem("officeMyth");}
+ $("re").onclick=()=>{try{localStorage.removeItem("officeMyth")}catch(e){}location.reload()};
+ try{localStorage.removeItem("officeMyth")}catch(e){}}
 /* ============ 深浅色主题（羊皮纸浅色） ============ */
 function currentTheme(){return document.documentElement.classList.contains("light")?"light":"dark"}
 function setTheme(t){
