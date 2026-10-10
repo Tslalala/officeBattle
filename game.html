@@ -164,6 +164,7 @@ html.light .qi{background:#b26a2e}
 .mode-horror .dialog{background:linear-gradient(#0e1828,#0b1320);border-top-color:#3c5a54;height:252px}
 .d-main{display:flex;gap:12px;flex:1;min-height:0}
 .avatar{width:84px;height:auto;flex:none;border:1px solid var(--paper-edge);background:var(--paper);padding:3px;position:relative;image-rendering:pixelated;overflow:hidden;box-shadow:2px 2px 0 #00000044}
+.avatar.empty{display:none}
 .mode-horror .avatar{border-color:#3c5a54}
 .avatar .av{position:absolute;inset:3px;image-rendering:pixelated;background-repeat:no-repeat;background-color:#0a1119}
 .avatar .av.expr{background-size:300% 200%}
@@ -806,7 +807,8 @@ const HorUI={
   const av=$("avatar");av.innerHTML="";
   this._curNid=null;
   const nid=this.speakerNpc(sp||"");
-  if(!nid){const t=document.createElement("div");t.className="av-tile";t.textContent=(sp||"·").replace(/^【[^】]*】/,"").charAt(0)||"·";av.append(t);return}
+  if(!nid){av.classList.add("empty");return}
+  av.classList.remove("empty");
   this._curNid=nid;
   const n=NPCS[nid];const d=document.createElement("div");d.className="av";
   if(isHorror()&&this.PORTRAITS[nid]){
