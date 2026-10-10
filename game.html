@@ -76,6 +76,7 @@ kbd{font-family:var(--font-num);background:var(--surface3);border:1px solid var(
  background:var(--keytop);border:1px solid var(--keysh);border-top-color:var(--edge-hi);color:var(--text);border-radius:0;
  box-shadow:0 2px 0 var(--keysh),inset 0 1px 0 var(--keyhi);
 }
+.loc .li{font-size:12px;opacity:.88;flex:none}
 .pxbtn{padding:5px 10px;font-size:12px}
 .pxbtn:hover,.qbtn:hover,.choice:hover,.act:hover,.cbtn:hover,.map-cell:hover{border-top-color:var(--gold);color:var(--lamp)}
 html.light .pxbtn:hover,html.light .qbtn:hover,html.light .choice:hover,html.light .act:hover,html.light .cbtn:hover,html.light .map-cell:hover{color:var(--stamp)}
@@ -144,11 +145,13 @@ html.light .loc.cur{color:var(--stamp)}
 .npc::after{content:attr(data-name);position:absolute;left:50%;top:-4px;transform:translate(-50%,-100%);background:var(--paper);color:var(--paper-ink);border:1px solid var(--paper-edge);font-size:11px;padding:2px 8px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s}
 .npc:hover::after{opacity:1}
 /* 状态条 = 打孔卡 */
-.stat{height:34px;background:var(--bg2);border-top:1px solid var(--line);color:var(--gold);font-size:12px;display:flex;align-items:center;gap:14px;padding:0 14px;flex:none;overflow-x:auto;white-space:nowrap}
+.stat{height:40px;background:var(--bg2);border-top:1px solid var(--line);color:var(--gold);font-size:13px;display:flex;align-items:center;gap:8px;padding:4px 10px;flex:none;overflow-x:auto;white-space:nowrap}
 .mode-horror .stat{display:none}
-.bars{flex:1;display:flex;gap:10px;align-items:center}
-.meter{display:flex;align-items:center;gap:5px;color:var(--muted)}
-.meter .track{width:64px;height:8px;background:var(--ink);border:1px solid var(--edge)}
+.bars{flex:1;display:flex;gap:8px;align-items:center}
+.meter{display:flex;align-items:center;gap:6px;color:var(--muted);background:var(--surface);border:1px solid var(--line);padding:3px 9px 3px 7px}
+.meter .track{width:52px;height:7px;background:var(--ink);border:1px solid var(--edge)}
+.meter b{font-family:var(--font-num);color:var(--text);min-width:18px;text-align:right;font-size:12px}
+.meter .mi{font-size:13px;flex:none}
 .meter .fill{height:100%;transition:width .3s}
 .mood{background:#5fce8f}.energy{background:#f2c879}.kpi{background:#8ab6d6}.favor{background:#f2b56b}.danger{background:#e06060}.san,.sanity{background:#b9a0d6}.weird{background:#c96a9a}.qi{background:#ff9d5c}
 html.light .mood{background:#4e7a52}
@@ -160,8 +163,8 @@ html.light .san,html.light .sanity{background:#6a5a8a}
 html.light .weird{background:#8a4a68}
 html.light .qi{background:#b26a2e}
 /* 对白区 = 桌面记事 */
-.dialog{flex:none;height:240px;background:var(--surface);border-top:2px solid var(--edge);padding:10px 14px 8px;display:flex;flex-direction:column;gap:7px}
-.mode-horror .dialog{background:linear-gradient(#0e1828,#0b1320);border-top-color:#3c5a54;height:252px}
+.dialog{flex:none;height:auto;min-height:64px;max-height:34vh;background:var(--surface);border-top:2px solid var(--edge);padding:10px 14px 8px;display:flex;flex-direction:column;gap:7px}
+.mode-horror .dialog{background:linear-gradient(#0e1828,#0b1320);border-top-color:#3c5a54;height:auto;min-height:64px;max-height:34vh}
 .d-main{display:flex;gap:12px;flex:1;min-height:0}
 .avatar{width:84px;height:auto;flex:none;border:1px solid var(--paper-edge);background:var(--paper);padding:3px;position:relative;image-rendering:pixelated;overflow:hidden;box-shadow:2px 2px 0 #00000044}
 .avatar.empty{display:none}
@@ -198,7 +201,7 @@ html.light .textwrap .text{color:#33302a}
 .chatrow input:focus{border-top-color:var(--teal)}
 .chatrow .choice{padding:8px 14px}
 /* 右栏 = 抽屉柜 */
-.right{width:252px;flex:none;background:var(--bg2);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0;box-shadow:inset 6px 0 14px -10px #000}
+.right{width:218px;flex:none;background:var(--bg2);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0;box-shadow:inset 6px 0 14px -10px #000}
 .mode-horror .right{display:none}
 /* 工牌 */
 .panel{padding:0 10px 4px;font-size:12px}
@@ -210,19 +213,19 @@ html.light .textwrap .text{color:#33302a}
 .sp-log{font-size:10.5px;color:var(--paper-mut);line-height:1.5;margin-top:4px;border-top:1px dashed var(--paper-edge);padding-top:4px;font-family:var(--font-doc)}
 /* 行动 = 文件夹 */
 .actions{flex:1;overflow-y:auto;padding:4px 10px 12px;border-top:1px solid var(--line)}
-.actions h4{margin:11px 0 5px;font-size:11px;color:var(--stamp);letter-spacing:.3em;font-weight:700;font-family:var(--font-head);display:flex;align-items:center;gap:7px}
+.actions h4{margin:9px 0 4px;font-size:10.5px;color:var(--stamp);letter-spacing:.3em;font-weight:700;font-family:var(--font-head);display:flex;align-items:center;gap:7px}
 .actions h4:before{content:"";width:8px;height:8px;background:var(--stamp);flex:none}
 .grp{margin:0 0 7px}
-.grp summary{list-style:none;cursor:pointer;background:linear-gradient(180deg,var(--paper),var(--paper2));border:1px solid var(--paper-edge);color:var(--paper-ink);padding:7px 12px 7px 10px;font-size:13px;display:flex;align-items:center;gap:7px;clip-path:polygon(0 0,calc(100% - 11px) 0,100% 11px,100% 100%,0 100%);font-family:var(--font-head);letter-spacing:.08em}
+.grp summary{list-style:none;cursor:pointer;background:linear-gradient(180deg,var(--paper),var(--paper2));border:1px solid var(--paper-edge);color:var(--paper-ink);padding:5px 10px;font-size:12.5px;display:flex;align-items:center;gap:7px;clip-path:polygon(0 0,calc(100% - 11px) 0,100% 11px,100% 100%,0 100%);font-family:var(--font-head);letter-spacing:.08em}
 .grp summary:hover{background:linear-gradient(180deg,#f6ecd2,#e6d6ae)}
 .grp[open] summary{background:linear-gradient(180deg,#f6ecd2,#e6d6ae);box-shadow:inset 0 -2px 0 var(--stamp)}
 html.light .grp summary{color:var(--paper-ink)}
 .grp .sub{display:flex;flex-direction:column;gap:4px;padding:7px 2px 2px}
 .sub .choice{text-align:left;box-shadow:0 1px 0 var(--keysh)}
-.act{width:100%;text-align:left;padding:8px 10px;font-size:13px;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.act{width:100%;text-align:left;padding:5px 9px;font-size:12.5px;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:7px}
 .act:disabled{opacity:.45;cursor:not-allowed}
 .act small{color:var(--muted);flex:1;text-align:right;font-size:11px}
-.log{height:118px;flex:none;border-top:1px solid var(--line);overflow-y:auto;padding:8px 12px;font-size:11.5px;line-height:1.6;color:#8398ad;background:repeating-linear-gradient(0deg,transparent 0 17px,var(--paperline) 17px 18px);font-family:var(--font-doc)}
+.log{height:104px;flex:none;border-top:1px solid var(--line);overflow-y:auto;padding:8px 12px;font-size:11.5px;line-height:1.6;color:#8398ad;background:repeating-linear-gradient(0deg,transparent 0 17px,var(--paperline) 17px 18px);font-family:var(--font-doc)}
 .log p{margin:0 0 3px}
 .log b{color:var(--gold);font-weight:normal}
 /* 弹窗 = 牛皮纸档案 */
@@ -1030,7 +1033,8 @@ function render(){
    sf.classList.add("on");void sf.offsetWidth;sf.classList.remove("on");}
  sc.classList.toggle("night",S.slot>=5&&!isHorror());
  $("locbar").innerHTML="";
- for(const k in LOCS){if(LOCS[k].horror&&!isHorror())continue;const b=document.createElement("button");b.className="loc"+(k===S.loc?" cur":"");b.textContent=LOCS[k].name;b.onclick=()=>moveTo(k);$("locbar").append(b)}
+ const LOCIC={desk:"💻",pantry:"☕",meeting:"📊",boss:"🗄",roof:"🌤",wc:"🚻",lobby:"🏢"};
+ for(const k in LOCS){if(LOCS[k].horror&&!isHorror())continue;const b=document.createElement("button");b.className="loc"+(k===S.loc?" cur":"");b.innerHTML='<span class="li">'+(LOCIC[k]||"▣")+"</span>"+LOCS[k].name;b.onclick=()=>moveTo(k);$("locbar").append(b)}
  if(isHorror()){
   HorUI.ensureUI();
   $("locName").textContent=LOCS[S.loc].name;
@@ -1051,10 +1055,10 @@ function render(){
    b.title=n.name+" · "+n.tag+(isHorror()&&k==="chen"?"（半透明）":"");
   b.setAttribute("aria-label",n.name);
   if(isHorror()&&k==="chen")b.style.opacity=.35;b.onclick=()=>openChat(k);$("scene").append(b)});
- const bars=[["mood","心情"],["energy","体力"],["kpi","绩效"],["favor","好感"],["danger","危险"]];
- if(isFun())bars.splice(3,0,["qi","斗志"]);
- if(isHorror())bars.splice(2,2,["san","理智"],["weird","怪异"]);
- $("bars").innerHTML=bars.map(([k,nm])=>'<div class="meter">'+nm+'<div class="track"><div class="fill '+k+'" style="width:'+S.st[k]+'%"></div></div></div>').join("")
+ const bars=[["mood","😐","心情"],["energy","⚡","体力"],["kpi","📈","绩效"],["favor","🤝","好感"],["danger","⚠️","危险"]];
+ if(isFun())bars.splice(3,0,["qi","🔥","斗志"]);
+ if(isHorror())bars.splice(2,2,["san","🧠","理智"],["weird","👁️","怪异"]);
+ $("bars").innerHTML=bars.map(([k,em,nm])=>'<div class="meter"><span class="mi">'+em+"</span>"+nm+"<b>"+S.st[k]+'</b><div class="track"><div class="fill '+k+'" style="width:'+S.st[k]+'%"></div></div></div>').join("")
   +(isFun()?'<div class="meter">零食×'+S.snacks+"</div>":"");
  $("selfPanel").innerHTML='<div class="sp-dept">栖木公司 · 综合事业部 · 新员工</div><div class="sp-main">第<b>'+S.day+'</b>/10天 · 情报'+S.intel+' · 盟友'+S.allies.length+(S.task?" · 委托「"+S.task.title+"」"+S.task.progress+"/"+S.task.need:(isFun()&&window.Battle?window.Battle.dexLine():""))+'</div><div class="sp-log">'+S.dayLog.slice(-2).join("；")+'</div>';
  renderActions();}
