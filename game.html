@@ -36,6 +36,12 @@ html.light{
  --chrome:linear-gradient(180deg,#f3ead3,#e6dab8);
  --paperline:rgba(56,49,31,.10);
 }
+ /* 亮色主题收尾：补齐硬编码颜色的 light 变体 */
+ html.light .log{color:#6a5f4a}
+ html.light .hint{color:#8a7d60}
+ html.light .scene{background-color:#cfc4a4}
+ html.light .grp summary:hover,html.light .grp[open] summary{background:linear-gradient(180deg,#efe4c4,#e2d3aa)}
+ html.light .av-tile{color:#7d7157}
 *{box-sizing:border-box}
 body{margin:0;background:#0a1016;color:var(--text);font-family:"Microsoft YaHei",system-ui,sans-serif;min-height:100vh}
 html.light body{background:#d9cdae}
