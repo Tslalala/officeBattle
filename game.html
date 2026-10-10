@@ -548,25 +548,19 @@ const ICONS={
  clock:'<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/>'};
 const ic=n=>'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[n]||"")+"</svg>";
 
-/* ============ 大模型接入（小米 MiMo · Anthropic 格式，经 serve.py 反代） ============ */
-const MIMO_BASE=(location.protocol==="http:"||location.protocol==="https:")?location.origin+"/mimo":"https://api.xiaomimimo.com/anthropic";
-const MIMO_MODEL="mimo-v2.6-flash";
+/* ============ 大模型接入（OpenAI 兼容接口，经 serve.py 反代） ============ */
+const UPSTREAM="http://47.109.104.139:21000/v1";
+const API_BASE=(location.protocol==="http:"||location.protocol==="https:")?location.origin+"/v1":UPSTREAM;
+const MODEL="Qwen3.8-27B-BF16", API_KEY="callmemaybe";
 let llmOK=null;
 async function llm(messages,{json=false,maxTokens=700,temp=0.9,timeout=45000}={}){
-  // Anthropic 格式：system 单独传，messages 只放 user/assistant
-  const sys=messages.filter(m=>m.role==="system").map(m=>m.content).join("\n");
-  const msgs=messages.filter(m=>m.role!=="system").map(m=>({role:m.role,content:m.content}));
-  const body={model:MIMO_MODEL,max_tokens:maxTokens,temperature:temp,thinking:{type:"disabled"},messages:msgs};
-  if(sys)body.system=sys;
+  const body={model:MODEL,messages,temperature:temp,max_tokens:maxTokens,chat_template_kwargs:{enable_thinking:false}};
   const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),timeout);
   try{
-    const r=await fetch(MIMO_BASE+"/v1/messages",{method:"POST",signal:ctl.signal,
-      headers:{"Content-Type":"application/json","anthropic-version":"2023-06-01"},body:JSON.stringify(body)});
+    const r=await fetch(API_BASE+"/chat/completions",{method:"POST",signal:ctl.signal,
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+API_KEY},body:JSON.stringify(body)});
     if(!r.ok)throw new Error("HTTP "+r.status);
-    const d=await r.json();
-    const c=(d.content||[]).filter(p=>p.type==="text").map(p=>p.text).join("").trim();
-    if(!c)throw new Error("empty content");
-    setLLM(true);return c;
+    const d=await r.json();const c=d.choices[0].message.content;setLLM(true);return c;
   }finally{clearTimeout(t)}
 }
 function setLLM(ok){llmOK=ok;const d=$("llmDot");if(d)d.className="dot "+(ok?"on":"off");const t=$("llmTxt");if(t)t.textContent=ok?"已连接":"离线";
@@ -1256,7 +1250,7 @@ function titleScreen(){
   +'<button class="mode hcard" data-m="horror"><span class="em">'+ic("flame")+'</span><span style="flex:1"><b>请于下班前离开</b><span class="tag">下班铃响过之后，这栋楼并不打算放你走。</span><span class="mdesc">七条守则 · 五份证据 · 一条真正的出口。查明陈序，然后在第二次广播响起前离开。</span></span></button>'
   +"</div>"
   +(okSave?"<button class='choice' id='cont'>"+ic("folder")+"继续上次进度（"+esc(MODES[save.mode].name)+" 第"+save.day+"天）</button> ":"")
-  +"<details class='help'><summary>连接与帮助</summary><div class='help-body'>后台大模型：小米 MiMo · "+MIMO_MODEL+"（<span id='titleLlm'>"+(llmOK===null?"检测中…":llmOK?"已连接":"离线（内置剧本，剧情照常进行）")+"</span>）。<br>若始终显示离线，请运行 <kbd>python serve.py</kbd> 后访问 <kbd>http://127.0.0.1:8787/game.html</kbd>。<br>进度自动保存在本机浏览器；即使完全离线，三个版本都可以完整通关。</div></details>";
+  +"<details class='help'><summary>连接与帮助</summary><div class='help-body'>后台大模型："+MODEL+"（<span id='titleLlm'>"+(llmOK===null?"检测中…":llmOK?"已连接":"离线（内置剧本，剧情照常进行）")+"</span>）。<br>若始终显示离线，请运行 <kbd>python serve.py</kbd> 后访问 <kbd>http://127.0.0.1:8787/game.html</kbd>。<br>进度自动保存在本机浏览器；即使完全离线，三个版本都可以完整通关。</div></details>";
  modal.querySelectorAll(".mode").forEach(b=>b.onclick=()=>{startGame(b.dataset.m)});
  if(okSave)$("cont").onclick=()=>{const base=newState(save.mode);S=Object.assign(base,save,{st:Object.assign(base.st,save.st),rel:Object.assign(base.rel,save.rel)});if(isHorror())Horror.ensure();HorUI.chatTarget=null;$("overlay").classList.add("hidden");
   if(S.slot>=SLOTS.length)return evening();
