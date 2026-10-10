@@ -597,7 +597,9 @@ async function llm(messages,{json=false,maxTokens=700,temp=0.9,timeout=45000}={}
     const r=await fetch(API_BASE+"/chat/completions",{method:"POST",signal:ctl.signal,
       headers:{"Content-Type":"application/json","Authorization":"Bearer "+API_KEY},body:JSON.stringify(body)});
     if(!r.ok)throw new Error("HTTP "+r.status);
-    const d=await r.json();const c=d.choices[0].message.content;setLLM(true);return c;
+    const d=await r.json();const c=d.choices&&d.choices[0]&&d.choices[0].message?d.choices[0].message.content:null;
+    if(!c||!String(c).trim())throw new Error("empty content");
+    setLLM(true);return c;
   }finally{clearTimeout(t)}
 }
 function setLLM(ok){llmOK=ok;const d=$("llmDot");if(d)d.className="dot "+(ok?"on":"off");const t=$("llmTxt");if(t)t.textContent=ok?"已连接":"离线";
